@@ -1,4 +1,3 @@
-#Here are some libraries you're likely to use. You might want/need others as well.
 import re
 import sys
 from random import random
@@ -17,20 +16,16 @@ def isEngAlpha(character):
     else:
         return False
 
-#Pre Processes the input line: by keeping only certain caharcters in the set {alpha[lowercase],space,isdidgit,.}
+#Pre Processes the input line: by keeping only certain characters in the set {alpha[lowercase],space,isdidgit,.}
 def preprocess_line(line):
     character_list = list()
     for character in line:
         if (isEngAlpha(character)): # character.isalpha(): True for other language characters also, hence use isEngAlpha()
             character_list.append(character.lower()) # keep lower characters
-        elif (character.isspace()): 
+        elif (character.isspace() or character == "."): 
             character_list.append(character) # keep ' '
         elif (character.isdigit()):
             character_list.append('0') # convert digits {0-9} to 0
-        elif (character == "."):
-            character_list.append(character) # keep '.'
-        else:
-            character_list.append('')   
 
     line = "".join(character_list)      
     return line
@@ -43,30 +38,25 @@ if len(sys.argv) != 2:
 
 infile = sys.argv[1] #get input argument: the training file
 
-#This bit of code gives an example of how you might extract trigram counts
-#from a file, line by line. If you plan to use or modify this code,
-#please ensure you understand what it is actually doing, especially at the
-#beginning and end of each line. Depending on how you write the rest of
-#your program, you may need to modify this code.
-
-
 with open(infile) as f:
+    i = 0
     for line in f:
-        line = preprocess_line(line) # Pre Processes the input line
-        print(line)
-        for j in range(len(line)-(3)):
-            trigram = line[j:j+3]
-            tri_counts[trigram] += 1
+        i+=1
+        if i == 4:
+            print(line)
+            line = preprocess_line(line) # Pre Processes the input line
+            print(line)
+            for j in range(len(line)-(3)):
+                trigram = line[j:j+3]
+                tri_counts[trigram] += 1
+        
+            break
 
-#Some example code that prints out the counts. For small input files
-#the counts are easy to look at but for larger files you can redirect
-#to an output file (see Lab 1).
-
-print("Trigram counts in ", infile, ", sorted alphabetically:")
-for trigram in sorted(tri_counts.keys()):
-    print(trigram, ": ", tri_counts[trigram])
-print("Trigram counts in ", infile, ", sorted numerically:")
-for tri_count in sorted(tri_counts.items(), key=lambda x:x[1], reverse = True):
-    print(tri_count[0], ": ", str(tri_count[1]))
+# print("Trigram counts in ", infile, ", sorted alphabetically:")
+# for trigram in sorted(tri_counts.keys()):
+#     print(trigram, ": ", tri_counts[trigram])
+# print("Trigram counts in ", infile, ", sorted numerically:")
+# for tri_count in sorted(tri_counts.items(), key=lambda x:x[1], reverse = True):
+#     print(tri_count[0], ": ", str(tri_count[1]))
 
 
