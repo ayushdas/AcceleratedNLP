@@ -42,6 +42,15 @@ def save_model_to_file(model):
         for k, v in model.items():
             file.write(str(k) + '\t'+ str(v) + '\n')
 
+# Prints the trigrams and probabilities that have the char1+char2 character history
+def trigram_with_two_character_history(char1,char2,tri_probs):
+    prefix = char1+char2
+    print('Diplaying all the n-grams and probability with the two-character history '+prefix)
+    for key in  tri_probs:
+        if (key.startswith(prefix)):
+            print ('n-gram','\t',key,'\t',tri_probs[key])
+    return            
+
 
 
 #here we make sure the user provides a training filename when
@@ -86,6 +95,7 @@ with open(infile) as f:
 
 tri_probs = estimate_probs(bi_counts,tri_counts)
 save_model_to_file(tri_probs)
+trigram_with_two_character_history('n','g',tri_probs)
 # print("Bigram counts in ", infile, ", sorted alphabetically:")
 # for bigram in sorted(bi_counts.keys()):
 #     print(bigram, ": ", bi_counts[bigram])
