@@ -3,9 +3,10 @@ import sys
 from random import random
 from math import log
 from collections import defaultdict
-
+import json
 
 tri_counts=defaultdict(int) #counts of all trigrams in input
+bi_counts=defaultdict(int) #counts of all bigrams in input
 
 # Check for English Character
 def isEngAlpha(character):
@@ -30,6 +31,19 @@ def preprocess_line(line):
     line = "".join(character_list)      
     return line
 
+def estimate_probs(bi_counts,tri_counts):
+    tri_probs = defaultdict(float) # probabilties of the trigram
+    for item in tri_counts:
+        tri_probs[item] = tri_counts[item] / bi_counts[item[0:2]] 
+    return tri_probs    
+
+def save_model_to_file(model):
+    with open('file.txt', 'w') as file:
+        for k, v in model.items():
+            file.write(str(k) + '\t'+ str(v) + '\n')
+
+
+
 #here we make sure the user provides a training filename when
 #calling this program, otherwise exit with a usage error.
 if len(sys.argv) != 2:
@@ -43,20 +57,42 @@ with open(infile) as f:
     for line in f:
         i+=1
         if i == 4:
+
+
+
+
+
             print(line)
             line = preprocess_line(line) # Pre Processes the input line
             print(line)
             for j in range(len(line)-(3)):
                 trigram = line[j:j+3]
                 tri_counts[trigram] += 1
-        
+
+            for j in range(len(line)-(2)):
+                bigram = line[j:j+2]
+                bi_counts[bigram] += 1
+                # bigram = line[j:j+2]
+                # bi_counts[bigram] +=1
+                
+            # bigram = line[len(line)-3:]
+            # bi_counts[bigram] +=1
+            # print (bigram)
+
+
+
+
             break
 
-# print("Trigram counts in ", infile, ", sorted alphabetically:")
-# for trigram in sorted(tri_counts.keys()):
-#     print(trigram, ": ", tri_counts[trigram])
+tri_probs = estimate_probs(bi_counts,tri_counts)
+save_model_to_file(tri_probs)
+# print("Bigram counts in ", infile, ", sorted alphabetically:")
+# for bigram in sorted(bi_counts.keys()):
+#     print(bigram, ": ", bi_counts[bigram])
 # print("Trigram counts in ", infile, ", sorted numerically:")
 # for tri_count in sorted(tri_counts.items(), key=lambda x:x[1], reverse = True):
 #     print(tri_count[0], ": ", str(tri_count[1]))
-
+# print("Bigram counts in ", infile, ", sorted numerically:")
+# for bi_count in sorted(bi_counts.items(), key=lambda x:x[1], reverse = True):
+#     print(bi_count[0], ": ", str(bi_count[1]))
 
