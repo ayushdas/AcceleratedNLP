@@ -1,6 +1,7 @@
 import re
 import sys
-from random import random
+import random
+# from random import random
 from math import log
 from collections import defaultdict
 import linecache
@@ -49,9 +50,6 @@ def read_model_from_file(file):
             (key, val) = line.split('\t')
             in_model[key] = val.rstrip('\n')
     return in_model
-
-def generate_from_LM(model):
-    pass
 
 def generate_debug_filepath(model):
     return '/Users/matt/Documents/Masters 2018-2019/Modules/Full/ANLP INFR11125/Assignments/AcceleratedNLP_1/Assignment-1/assignment1-data/'+model
@@ -109,6 +107,7 @@ def trigram_viewer(alpha,num,infile):
             print(tri_count[0], ": ", str(tri_count[1]))
 
 def perplexity_computation(file,model):
+
     with open(file) as f:
         total_prob = 0
         total_tris = 0
@@ -121,8 +120,56 @@ def perplexity_computation(file,model):
                 total_prob = trigram_prob + total_prob
         # perplexity = 
         # take antilog and do to power of 1/n?  still unsure here....
+
+def trigram_with_two_character_history(char1,char2,tri_probs):
+    prefix = char1+char2
+    print('Diplaying all the n-grams and probability with the two-character history '+prefix)
+    for key in  tri_probs:
+        if (key.startswith(prefix)):
+            print ('n-gram','\t',key,'\t',tri_probs[key])
+    return            
+def generate_from_LM(num_of_chars,tri_probs):
+    valid_char_list = [' ','.','0']
+    for i in range(ord('a'),ord('z')+1):
+        valid_char_list.append(chr(i))
+    if(num_of_chars == 0):
+        return
+    elif (num_of_chars == 1):
+        return (random.choice(valid_char_list))
+    elif (num_of_chars == 2):
+        return (random.choice(valid_char_list))+(random.choice(valid_char_list))    
+    else:
+        seq = ''
+        Num_Of_Chars = num_of_chars
+        num_of_iter = 0
+        while(len(seq) != Num_Of_Chars and num_of_iter <= 1000):  
+            two_char_seq = (random.choice(valid_char_list))+(random.choice(valid_char_list))
+            print(two_char_seq)    
+            seq = two_char_seq
+            num_of_chars = Num_Of_Chars-2
+            while (num_of_chars > 0):
+                prob = 0
+                trigram_key = ''
+                # print ('1',' Two character sequence:',two_char_seq,' |Trigram Sequence:',trigram_key) 
+                foundKey = False
+                for key in tri_probs:              
+                    if ((key.startswith(two_char_seq)) and tri_probs[key] > prob):
+                        prob = tri_probs[key]
+                        trigram_key = key
+                        foundKey = True
+                # print ('2',' Two character sequence:',two_char_seq,' |Trigram Sequence:',trigram_key, ' |Character Extracted:',trigram_key[2:3])       
+                if (foundKey == True):
+                    seq = seq + trigram_key[2:3]
+                    two_char_seq = trigram_key[1:3]
+                else :
+                    print(two_char_seq,' Key not found!')
+                    break    
+                num_of_chars -= 1
+            num_of_iter += 1                       
+    return seq
+
 def main_routine():
-    
+
     debugger = True
     testing = True
     alpha = False
@@ -143,6 +190,7 @@ def main_routine():
         complete_model(infile)
         tri_probs = estimate_probs(bi_counts,tri_counts)
         save_model_to_file(tri_probs,'modelv1.txt')
+        sequence = generate_from_LM(300,tri_probs)
         perplexity_computation(test_file,tri_probs)
 
     # bigram_viewer(alpha,num,infile)
