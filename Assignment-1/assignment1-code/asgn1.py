@@ -4,6 +4,7 @@ from random import random
 from math import log
 from collections import defaultdict
 import json
+import os
 
 tri_counts=defaultdict(int) #counts of all trigrams in input
 bi_counts=defaultdict(int) #counts of all bigrams in input
@@ -42,26 +43,24 @@ def save_model_to_file(model):
         for k, v in model.items():
             file.write(str(k) + '\t'+ str(v) + '\n')
 
-
+def generate_from_LM(model):
+    pass
 
 #here we make sure the user provides a training filename when
 #calling this program, otherwise exit with a usage error.
-if len(sys.argv) != 2:
-    print("Usage: ", sys.argv[0], "<training_file>")
-    sys.exit(1)
+# if len(sys.argv) != 2:
+#     print("Usage: ", sys.argv[0], "<training_file>")
+#     sys.exit(1)
+infile = '/Users/matt/Documents/Masters 2018-2019/Modules/Full/ANLP INFR11125/Assignments/AcceleratedNLP_1/Assignment-1/assignment1-data/training.en'
 
-infile = sys.argv[1] #get input argument: the training file
+# infile = sys.argv[1] #get input argument: the training file
 
 with open(infile) as f:
     i = 0
     for line in f:
         i+=1
         if i == 4:
-
-
-
-
-
+# write question 5 and getting model from file
             print(line)
             line = preprocess_line(line) # Pre Processes the input line
             print(line)
@@ -78,14 +77,13 @@ with open(infile) as f:
             # bigram = line[len(line)-3:]
             # bi_counts[bigram] +=1
             # print (bigram)
-
-
-
-
             break
 
 tri_probs = estimate_probs(bi_counts,tri_counts)
 save_model_to_file(tri_probs)
+print("Trigram counts in ", infile, ", sorted alphabetically:")
+for trigram in sorted(tri_counts.keys()):
+    print(trigram, ": ", tri_counts[trigram])
 # print("Bigram counts in ", infile, ", sorted alphabetically:")
 # for bigram in sorted(bi_counts.keys()):
 #     print(bigram, ": ", bi_counts[bigram])

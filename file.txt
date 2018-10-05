@@ -1,0 +1,91 @@
+you	1.0
+ou 	0.5
+u h	1.0
+ ha	1.0
+hav	1.0
+ave	1.0
+ve 	1.0
+e r	0.2
+ re	1.0
+req	1.0
+equ	1.0
+que	1.0
+ues	1.0
+est	0.5
+ste	1.0
+ted	0.5
+ed 	1.0
+d a	1.0
+ a 	1.0
+a d	1.0
+ de	0.3333333333333333
+deb	1.0
+eba	1.0
+bat	1.0
+ate	1.0
+te 	0.5
+e o	0.4
+ on	0.5
+on 	0.5
+n t	1.0
+ th	1.0
+thi	0.5
+his	1.0
+is 	1.0
+s s	0.3333333333333333
+ su	1.0
+sub	1.0
+ubj	1.0
+bje	1.0
+jec	1.0
+ect	1.0
+ct 	1.0
+t i	0.5
+ in	1.0
+in 	0.5
+the	0.5
+he 	1.0
+e c	0.2
+ co	1.0
+cou	1.0
+our	0.5
+urs	0.5
+rse	1.0
+se 	0.5
+ of	0.5
+of 	1.0
+f t	1.0
+e n	0.2
+ ne	1.0
+nex	1.0
+ext	1.0
+xt 	1.0
+t f	0.5
+ fe	1.0
+few	1.0
+ew 	1.0
+w d	1.0
+ da	0.3333333333333333
+day	1.0
+ays	1.0
+ys 	1.0
+s d	0.3333333333333333
+ du	0.3333333333333333
+dur	1.0
+uri	0.5
+rin	1.0
+ing	0.5
+ng 	1.0
+g t	1.0
+s p	0.3333333333333333
+ pa	1.0
+par	1.0
+art	1.0
+rts	1.0
+tse	1.0
+ses	0.5
+ess	0.5
+ssi	1.0
+sio	1.0
+ion	1.0
+on.	0.5

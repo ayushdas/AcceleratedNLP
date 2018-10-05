@@ -1,0 +1,75 @@
+yo	1
+ou	2
+u 	1
+ h	1
+ha	1
+av	1
+ve	1
+e 	5
+ r	1
+re	1
+eq	1
+qu	1
+ue	1
+es	2
+st	1
+te	2
+ed	1
+d 	1
+ a	1
+a 	1
+ d	3
+de	1
+eb	1
+ba	1
+at	1
+ o	2
+on	2
+n 	2
+ t	4
+th	4
+hi	2
+is	2
+s 	3
+ s	1
+su	1
+ub	1
+bj	1
+je	1
+ec	1
+ct	1
+t 	2
+ i	1
+in	2
+he	2
+ c	1
+co	1
+ur	2
+rs	1
+se	2
+of	1
+f 	1
+ n	1
+ne	1
+ex	1
+xt	1
+ f	1
+fe	1
+ew	1
+w 	1
+da	1
+ay	1
+ys	1
+du	1
+ri	1
+ng	1
+g 	1
+ p	1
+pa	1
+ar	1
+rt	1
+ts	1
+ss	1
+si	1
+io	1
+n.	1
