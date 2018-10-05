@@ -65,7 +65,8 @@ def generate_from_LM(num_of_chars,tri_probs):
     else:
         seq = ''
         Num_Of_Chars = num_of_chars
-        while(len(seq) != Num_Of_Chars):  
+        num_of_iter = 0
+        while(len(seq) != Num_Of_Chars and num_of_iter <= 1000):  
             two_char_seq = (random.choice(valid_char_list))+(random.choice(valid_char_list))
             print(two_char_seq)    
             seq = two_char_seq
@@ -73,21 +74,22 @@ def generate_from_LM(num_of_chars,tri_probs):
             while (num_of_chars > 0):
                 prob = 0
                 trigram_key = ''
-                print ('1',' Two character sequence:',two_char_seq,' |Trigram Sequence:',trigram_key) 
+                # print ('1',' Two character sequence:',two_char_seq,' |Trigram Sequence:',trigram_key) 
                 foundKey = False
                 for key in tri_probs:              
                     if ((key.startswith(two_char_seq)) and tri_probs[key] > prob):
                         prob = tri_probs[key]
                         trigram_key = key
                         foundKey = True
-                print ('2',' Two character sequence:',two_char_seq,' |Trigram Sequence:',trigram_key, ' |Character Extracted:',trigram_key[2:3])       
+                # print ('2',' Two character sequence:',two_char_seq,' |Trigram Sequence:',trigram_key, ' |Character Extracted:',trigram_key[2:3])       
                 if (foundKey == True):
                     seq = seq + trigram_key[2:3]
                     two_char_seq = trigram_key[1:3]
                 else :
                     print(two_char_seq,' Key not found!')
                     break    
-                num_of_chars -= 1               
+                num_of_chars -= 1
+            num_of_iter += 1                       
     return seq
 
 
