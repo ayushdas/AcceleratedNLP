@@ -1,11 +1,14 @@
 import re
 import sys
 import random
+import os
 # from random import random
 from math import log10
 from math import pow
 from collections import defaultdict
 import linecache
+import numpy as np
+import time
 
 tri_counts=defaultdict(int) #counts of all trigrams in input
 bi_counts=defaultdict(int) #counts of all bigrams in input
@@ -203,18 +206,91 @@ def generate_from_LM(num_of_chars,tri_probs):
     return seq
     
 
+
+   
+def random_generate_from_LM(num_of_chars,tri_probs):
+    
+    # z = tri_probs.keys()
+    # t = tri_probs.values()
+    # r = 5
+
+    # x = list(filter(lambda s: s.startswith('ab'), tri_probs))
+    # outed = [tri_probs[i] for i in x]
+    # r =5
+    valid_char_list = [' ','.','0','#']
+    for i in range(ord('a'),ord('z')+1):
+        valid_char_list.append(chr(i))
+    if(num_of_chars == 0):
+        return
+    elif (num_of_chars == 1):
+        return (random.choice(valid_char_list))
+    elif (num_of_chars == 2):
+        return (random.choice(valid_char_list))+(random.choice(valid_char_list))    
+    else:
+        seq = ''
+        Num_Of_Chars = num_of_chars
+        num_of_iter = 0
+        while(len(seq) != Num_Of_Chars and num_of_iter <= 1000):  
+            two_char_seq = (random.choice(valid_char_list))+(random.choice(valid_char_list))
+            # print(two_char_seq)    
+            seq = two_char_seq
+            num_of_chars = Num_Of_Chars-2
+
+            while (num_of_chars > 0):
+            
+                if two_char_seq == '.#':
+                    output = '.##'
+                else:
+
+                    # t1 = time.time()
+                    # trigrams = list(filter(lambda s: s.startswith(two_char_seq), tri_probs))
+                    trigrams = [two_char_seq + i for i in valid_char_list]
+                    # trigrams = [tri_probs[two_char_seq+i] for i in valid_char_list]
+                    # print(time.time()-t1)
+                    # if not trigrams:
+                    #     print(two_char_seq,' Key not found!')
+                    #     break    
+                    
+                    # distribution = [tri_probs[i] for i in trigrams]
+                    distribution = [tri_probs[i] for i in trigrams]
+
+                    bins = np.cumsum(distribution)
+                    total = np.sum(distribution)
+                    # tryt = np.digitize(total*np.random.random_sample(10),bins)
+                    # outputx = [trigrams[i] for i in tryt]
+                    output = trigrams[np.digitize(total*np.random.random_sample(), bins)]
+                   
+                seq = seq + output[-1]
+                two_char_seq = output[1:3]
+            
+                # prob = 0
+                # trigram_key = ''
+                # foundKey = False
+                # for key in tri_probs:              
+                #     if ((key.startswith(two_char_seq)) and tri_probs[key] > prob):
+                #         prob = tri_probs[key]
+                #         trigram_key = key
+                #         foundKey = True
+                # print ('2',' Two character sequence:',two_char_seq,' |Trigram Sequence:',trigram_key, ' |Character Extracted:',trigram_key[2:3])       
+            
+                num_of_chars -= 1
+            num_of_iter += 1  
+    # print(seq)                     
+    return seq
+
 def main_routine():
     # Parameter selection
-    debugger = False
+    debugger = True
     testing = False
-    modelling = False
+    modelling = True
     alpha = False
     num = False
     line_num = 4
     model_lang = 'en'
     test_file = '../assignment1-data/test'
-    model_file = '../assignment1-models/Empirical_Model_de'
+    model_file = '../assignment1-models/Empirical_Model_en'
     given_model_file = '../assignment1-models/model-br.en'
+    selected_data = '../assignment1-data/training.'+ model_lang
 
     if debugger:
         infile = generate_debug_filepath('training.'+model_lang)
@@ -223,8 +299,12 @@ def main_routine():
 
     if modelling:
         # model_in = init_dummy_model()
-        model_in = read_model_from_file(model_file)
-        print ('Perplexity: ' + str(perplexity_computation('../assignment1-data/training.de',model_in)))
+        given_model = read_model_from_file(given_model_file)
+
+        sequence = random_generate_from_LM(300,given_model)
+        print (sequence)
+        # model_in = read_model_from_file(model_file)
+        # print ('Perplexity of '+ model_lang + ' file: ' + str(perplexity_computation(selected_data,model_in)))
     else:
         if testing:
             testing_routine(line_num,infile)
@@ -251,12 +331,14 @@ def main_routine():
             print (sequence)
             print('Question 5:')
             print('----------------------')
-            print ('Perplexity of file: ' +str(perplexity_computation('../assignment1-data/training.es',tri_probs)))
+            print ('Perplexity of '+ model_lang + ' file: ' +str(perplexity_computation(selected_data,tri_probs)))
 
         # bigram_viewer(alpha,num,infile)
         # trigram_viewer(alpha,num,infile)
 
 if __name__ == '__main__':
+    print ('here')
+    print (os.getcwd())
     main_routine()
 # do tables and graphs for presentation
 # Smoothing
