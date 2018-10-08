@@ -6,10 +6,12 @@ from math import log10
 from math import pow
 from collections import defaultdict
 import linecache
+import itertools
 
 tri_counts=defaultdict(int) #counts of all trigrams in input
 bi_counts=defaultdict(int) #counts of all bigrams in input
-
+uni_counts=defaultdict(int) #counts of all bigrams in input
+total_count = defaultdict(int)
 # Check for English Character
 def isEngAlpha(character):
     if (character >= 'a' and character <= 'z'):
@@ -68,9 +70,12 @@ def find_bi_tri_grams(line):
         tri_counts[trigram] += 1
         bigram = line[j:j+2]
         bi_counts[bigram] += 1
-      
     final_bigram = line[len(line)-2:]
     bi_counts[final_bigram] +=1
+    for j in range(len(line)):
+        unigram = line[j]
+        uni_counts[unigram] += 1
+        total_count['total'] += 1
 
 def testing_routine(line_num,infile):
     line = linecache.getline(infile, line_num).rstrip('\n')
@@ -122,10 +127,8 @@ def perplexity_computation(file,model):
                 # print (trigram)
                 if trigram in model.keys():
                     trigram_prob = log10(model[trigram])
-                else:
-                    # print('unseen trigram: ' + trigram)
-                    
-                    trigram_prob = log10( 1 / ( bi_counts[trigram[:2]] + len(tri_counts)) )
+                # else:
+                #     print('unseen trigram: ' + trigram)
                 total_prob += trigram_prob 
         log_perplexity = total_prob*(-1/total_tris)
         perplexity = pow(10,log_perplexity)
@@ -161,8 +164,9 @@ def trigram_with_two_character_history(char1,char2,tri_probs):
     for key in  tri_probs:
         if (key.startswith(prefix)):
             print ('n-gram','\t',key,'\t',tri_probs[key])
-                
-def generate_from_LM(num_of_chars,tri_probs):
+
+
+def generate_from_LM(num_of_chars,tri_probs,generate_from_smoothed_model,trigram_distribution):
     valid_char_list = [' ','.','0']
     for i in range(ord('a'),ord('z')+1):
         valid_char_list.append(chr(i))
@@ -173,35 +177,119 @@ def generate_from_LM(num_of_chars,tri_probs):
     elif (num_of_chars == 2):
         return (random.choice(valid_char_list))+(random.choice(valid_char_list))    
     else:
-        seq = ''
         Num_Of_Chars = num_of_chars
-        num_of_iter = 0
-        while(len(seq) != Num_Of_Chars and num_of_iter <= 1000):  
+        seq = ''
+        if (generate_from_smoothed_model == False):             
+            num_of_iter = 0
+            while(len(seq) != Num_Of_Chars and num_of_iter <= 1000):  
+                two_char_seq = (random.choice(valid_char_list))+(random.choice(valid_char_list))
+                # two_char_seq = 'bt' #'gq'
+                seq = two_char_seq
+                num_of_chars = Num_Of_Chars-2
+                while (num_of_chars > 0):
+                    prob = 0
+                    trigram_key = ''
+                    # print ('1',' Two character sequence:',two_char_seq,' |Trigram Sequence:',trigram_key) 
+                    foundKey = False
+                    for key in tri_probs:              
+                        if ((key.startswith(two_char_seq)) and tri_probs[key] > prob):
+                            prob = tri_probs[key]
+                            trigram_key = key
+                            foundKey = True
+                    # print ('2',' Two character sequence:',two_char_seq,' |Trigram Sequence:',trigram_key, ' |Character Extracted:',trigram_key[2:3])       
+                    if (foundKey == True):
+                        seq = seq + trigram_key[2:3]
+                        two_char_seq = trigram_key[1:3]
+                    else :
+                        # print(two_char_seq,' Key not found!')
+                        break    
+                    num_of_chars -= 1                    
+                num_of_iter += 1
+        else:
             two_char_seq = (random.choice(valid_char_list))+(random.choice(valid_char_list))
-            # print(two_char_seq)    
+            # two_char_seq = 'bt'#'gq'
             seq = two_char_seq
             num_of_chars = Num_Of_Chars-2
             while (num_of_chars > 0):
                 prob = 0
                 trigram_key = ''
                 # print ('1',' Two character sequence:',two_char_seq,' |Trigram Sequence:',trigram_key) 
-                foundKey = False
-                for key in tri_probs:              
-                    if ((key.startswith(two_char_seq)) and tri_probs[key] > prob):
-                        prob = tri_probs[key]
+                for key in trigram_distribution:              
+                    if ((key.startswith(two_char_seq)) and trigram_distribution[key] > prob):
+                        prob = trigram_distribution[key]
                         trigram_key = key
-                        foundKey = True
                 # print ('2',' Two character sequence:',two_char_seq,' |Trigram Sequence:',trigram_key, ' |Character Extracted:',trigram_key[2:3])       
-                if (foundKey == True):
-                    seq = seq + trigram_key[2:3]
-                    two_char_seq = trigram_key[1:3]
-                else :
-                    print(two_char_seq,' Key not found!')
-                    break    
-                num_of_chars -= 1
-            num_of_iter += 1                       
+                seq = seq + trigram_key[2:3]
+                two_char_seq = trigram_key[1:3]  
+                num_of_chars -= 1         
     return seq
     
+
+## Add 1 Smoothing
+def create_smoothing_add_one():
+    print('Applying 1+ smoothing to the values')
+    smoothed_model = defaultdict(int)
+    valid_char_list = [' ','.','0']
+    for i in range(ord('a'),ord('z')+1):
+        valid_char_list.append(chr(i))
+    all_possible_trigrams = []
+    for char1 in valid_char_list:
+        for char2 in valid_char_list:
+            for char3 in valid_char_list:
+                all_possible_trigrams.append(char1+char2+char3)
+    V = len(valid_char_list)
+    for trigram in all_possible_trigrams:
+        smoothed_model[trigram] = (tri_counts[trigram] + 1) / (bi_counts[trigram[0:2]] + V)
+    save_model_to_file(smoothed_model , '../assignment1-models/Empirical_Model_Smoothed_en')
+    print ('1+ smoothing completed')
+    return
+
+## Add alpha Smoothing
+def create_smoothing_add_alpha(alpha):
+    print('Applying add alpha smoothing to the values')
+    smoothed_model = defaultdict(int)
+    valid_char_list = [' ','.','0']
+    for i in range(ord('a'),ord('z')+1):
+        valid_char_list.append(chr(i))
+    all_possible_trigrams = []
+    for char1 in valid_char_list:
+        for char2 in valid_char_list:
+            for char3 in valid_char_list:
+                all_possible_trigrams.append(char1+char2+char3)
+    V = len(valid_char_list)
+    for trigram in all_possible_trigrams:
+        smoothed_model[trigram] = (tri_counts[trigram] + alpha) / (bi_counts[trigram[0:2]] + (alpha * V))
+    save_model_to_file(smoothed_model , '../assignment1-models/Empirical_Model_Smoothed_en')
+    print ('Add alpha smoothing completed')
+    return   
+
+## Interpolation Smoothing
+def create_smoothing_by_interpolation():
+    print('Applying interpolation smoothing to the values')
+    smoothed_model = defaultdict(int)
+    valid_char_list = [' ','.','0']
+    for i in range(ord('a'),ord('z')+1):
+        valid_char_list.append(chr(i))
+    all_possible_trigrams = []
+    for char1 in valid_char_list:
+        for char2 in valid_char_list:
+            for char3 in valid_char_list:
+                all_possible_trigrams.append(char1+char2+char3)
+    for trigram in all_possible_trigrams:
+        trigram_value = 0
+        bigram_value = 0
+        unigram_value = 0
+        if(bi_counts[trigram[0:2]] > 0):
+            trigram_value = (tri_counts[trigram]) / (bi_counts[trigram[0:2]])
+        if(uni_counts[trigram[0]] > 0):
+            bigram_value = (bi_counts[trigram[0:2]]) / (uni_counts[trigram[0]])
+        if(total_count['total'] > 0):
+            unigram_value = uni_counts[trigram[0]] / total_count['total']      
+        smoothed_model[trigram] = (0.6 * trigram_value) + (0.3 * bigram_value) + (0.1 * unigram_value)
+    save_model_to_file(smoothed_model , '../assignment1-models/Empirical_Model_Smoothed_en')
+    print ('Interpolation smoothing completed')
+    return 
+
 
 def main_routine():
     # Parameter selection
@@ -213,18 +301,19 @@ def main_routine():
     line_num = 4
     model_lang = 'en'
     test_file = '../assignment1-data/test'
-    model_file = '../assignment1-models/Empirical_Model_de'
+    # model_file = '../assignment1-models/Empirical_Model_en'
     given_model_file = '../assignment1-models/model-br.en'
-
+    model_file = '../assignment1-models/Empirical_Model_Smoothed_en'
+    
     if debugger:
         infile = generate_debug_filepath('training.'+model_lang)
     else:
         infile = terminal_input_filepath()
 
     if modelling:
-        # model_in = init_dummy_model()
+        # model_in = init_dummy_model()        
         model_in = read_model_from_file(model_file)
-        print ('Perplexity: ' + str(perplexity_computation('../assignment1-data/training.de',model_in)))
+        print ('Perplexity: ' + str(perplexity_computation('../assignment1-data/training.es',model_in)))
     else:
         if testing:
             testing_routine(line_num,infile)
@@ -236,19 +325,30 @@ def main_routine():
             print('Preprocessing complete')
             tri_probs = estimate_probs(bi_counts,tri_counts)
             save_model_to_file(tri_probs,'../assignment1-models/Empirical_Model_' + model_lang)
+            # -------Smoothing Done in this section -------
+            create_smoothing_add_one()
+            # create_smoothing_add_alpha(0.8)
+            # create_smoothing_by_interpolation()
+            # --------Smoothing Section completed -------
             print('Question 3:')
             print('----------------------')
             print('All trigams starting with "ng":')
             trigram_with_two_character_history('n','g',tri_probs)
             print('Question 4:')
             print('----------------------')
+            generate_from_smoothed_model = False # True: use the smoothed model; False: use the model without smoothing 
+            smoothed_model = dict()
             given_model = read_model_from_file(given_model_file)
-            sequence = generate_from_LM(300,tri_probs)
+            if generate_from_smoothed_model == True:
+                smoothed_model = read_model_from_file('../assignment1-models/Empirical_Model_Smoothed_en')
+            sequence = generate_from_LM(300,tri_probs,generate_from_smoothed_model,smoothed_model)
             print('Our model:')
+            print('Seed sequence used: ',sequence[0:2])
             print (sequence) #sequence 
-            sequence = generate_from_LM(300,given_model)
+            sequence = generate_from_LM(300,given_model,False,dict())
             print ('Given model:')
-            print (sequence)
+            print('Seed sequence used: ',sequence[0:2])
+            print (sequence) #sequence 
             print('Question 5:')
             print('----------------------')
             print ('Perplexity of file: ' +str(perplexity_computation('../assignment1-data/training.es',tri_probs)))
