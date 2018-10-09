@@ -233,7 +233,10 @@ def create_smoothing_add_one(bi_counts,tri_counts,valid_char_list):
                 if (char1 == '#' and char3 == '#'):
                         continue # cannot have #a#, too short a sentence 
                 all_possible_trigrams.append(char1+char2+char3)
-    V = len(valid_char_list)
+
+    V = len(valid_char_list) # BUG here - V is now no longer constant for all trigrams.  
+                             # Wherever trigrams have been ommitted, e.g. '###', V also 
+                             # needs to be subtracted by 1 for that particular bigram (##) only.
     for trigram in all_possible_trigrams:
         smoothed_model[trigram] = (tri_counts[trigram] + 1) / (bi_counts[trigram[0:2]] + V)
     print ('1+ smoothing completed')
