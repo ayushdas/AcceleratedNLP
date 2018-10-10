@@ -9,8 +9,7 @@ import linecache
 import numpy as np
 import time
 
-# tri_counts=defaultdict(int) #counts of all trigrams in input
-# bi_counts=defaultdict(int) #counts of all bigrams in input
+
 uni_counts = defaultdict(int)
 total_count = defaultdict(int)
 # Check for English Character
@@ -237,8 +236,13 @@ def create_smoothing_add_one(bi_counts,tri_counts,valid_char_list):
     V = len(valid_char_list) # BUG here - V is now no longer constant for all trigrams.  
                              # Wherever trigrams have been ommitted, e.g. '###', V also 
                              # needs to be subtracted by 1 for that particular bigram (##) only.
+                             # bug fixed in for loop
     for trigram in all_possible_trigrams:
-        smoothed_model[trigram] = (tri_counts[trigram] + 1) / (bi_counts[trigram[0:2]] + V)
+        if trigram[0] == '#': #bug fixed here
+            V_act = V-1
+        else:
+            V_act = V
+        smoothed_model[trigram] = (tri_counts[trigram] + 1) / (bi_counts[trigram[0:2]] + V_act)
     print ('1+ smoothing completed')
     return smoothed_model
 
@@ -288,12 +292,29 @@ def create_smoothing_by_interpolation(bi_counts,tri_counts):
     print ('Interpolation smoothing completed')
     return 
 
+def model_checker(model,valid_char_list):
+    
+    all_bigrams = []
+    for char1 in valid_char_list:
+        for char2 in valid_char_list:
+            if  char2=='#' and char1 != '#':
+                continue
+            else:
+                all_bigrams.append(char1 + char2)
+
+    for bigram in all_bigrams:
+        all_tris = [bigram + i for i in valid_char_list]
+        distribution = [model[i] for i in all_tris]
+        if sum(distribution) < 0.999:
+            print (bigram)
+        # print (sum(distribution))
+
 def main_routine():
 
     # Parameter selection
     debugger = True # select when filepath is non-dynamic
     testing = False # select when modelling only specific line of an input file
-    modelling = True # select when running program only to test perplexity of a test doc
+    modelling = False # select when running program only to test perplexity of a test doc
     alpha = False # select whether or not to display all trigrams/bigrams alphabetically
     num = False # select whether or not to display all trigrams/bigrams numerically
     line_num = 6 # line number for pinpointed model testing
@@ -361,7 +382,7 @@ def main_routine():
             print('----------------------')
             print ('Perplexity of test file under English model: '
                  +str(perplexity_computation(test_file,smoothed_model)))
-
+            model_checker(given_model,valid_char_list)
         bigram_viewer(alpha,num,infile,bi_counts)
         trigram_viewer(alpha,num,infile,tri_counts)
 
