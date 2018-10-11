@@ -142,6 +142,20 @@ def perplexity_computation(file,model):
         perplexity = pow(10,log_perplexity)
     return perplexity
 
+def dummy_perplexity(string,model):
+    total_prob = 0
+    total_tris = 0
+    trigram_prob = 0
+    for j in range(len(string)-(2)):
+        total_tris +=1
+        trigram = string[j:j+3]
+        trigram_prob = log10(model[trigram])
+        total_prob += trigram_prob 
+
+    log_perplexity = total_prob*(-1/total_tris)
+    perplexity = pow(10,log_perplexity)
+    return perplexity
+
 def init_dummy_model():
     distribution = dict([('##a', 0.2),
                     ('#aa', 0.2),
@@ -173,7 +187,7 @@ def trigram_with_two_character_history(char1,char2,tri_probs):
         if (key.startswith(prefix)):
             print ('n-gram','\t',key,'\t',tri_probs[key])
                     
-def random_generate_from_LM(num_of_chars,tri_probs,valid_char_list,non_sequence_marker_list):
+def generate_from_LM(num_of_chars,tri_probs,valid_char_list,non_sequence_marker_list):
     # function generating a random sequence of characters from a trigram model
     if(num_of_chars == 0):
         return ''
@@ -321,7 +335,8 @@ def main_routine():
     model_lang = 'en'# english(en), german(de) or spanish(es)
     valid_char_list,non_sequence_marker_list = valid_char_generator()# generates all valid characters
     test_given_model = False #decides which model to test
-    
+    dummy_modelling = False # choose whether or not to model the dummy example
+
     # Input files
     test_file = '../assignment1-data/test' # final test data
     model_file = '../assignment1-models/Empirical_Model_Smoothed_en' # generated model
@@ -344,6 +359,12 @@ def main_routine():
             model_in = read_model_from_file(model_file)
             print ('Perplexity of '+ model_lang + ' file using generated model: ' + 
                 str(perplexity_computation(infile,model_in)))
+        
+        if dummy_modelling:
+            dummy_string = '##abaab#'
+            dummy_model = init_dummy_model()
+            print ('Perplexity of Dummy input: ' 
+                + str(dummy_perplexity(dummy_string,dummy_model)))
     else:
         if testing:
             bi_counts,tri_counts = testing_routine(line_num,infile)
@@ -369,13 +390,13 @@ def main_routine():
             given_model = read_model_from_file(given_model_file)
             print('Random sequence from generated model:')
             print ('--')
-            sequence = random_generate_from_LM(300,smoothed_model,
+            sequence = generate_from_LM(300,smoothed_model,
                         valid_char_list,non_sequence_marker_list)
             print (sequence) 
             print ('--')
             print ('Random sequence from given model:')
             print ('--')
-            sequence = random_generate_from_LM(300,given_model,
+            sequence = generate_from_LM(300,given_model,
                         valid_char_list,non_sequence_marker_list)
             print (sequence)
             print('Question 5:')
