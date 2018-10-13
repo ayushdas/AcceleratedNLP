@@ -8,6 +8,8 @@ from collections import defaultdict
 import linecache
 import numpy as np
 import time
+import matplotlib.pyplot as plt
+
 
 
 uni_counts = defaultdict(int)
@@ -75,7 +77,6 @@ def find_bi_tri_grams(corp):
       
     final_bigram = corp[len(corp)-2:]
     bi_counts[final_bigram] +=1
-
     return bi_counts,tri_counts
 
 def testing_routine(line_num,infile):
@@ -86,14 +87,16 @@ def testing_routine(line_num,infile):
     processed_line = preprocess_line(line) # removes special characters and lowercases all letters
     print ('PROCESSED LINE:')
     print (processed_line)
+    
     return find_bi_tri_grams(processed_line)
      
 def complete_model(infile):
     with open(infile) as f:
         total_input = ''
         for line in f:
-                processed_line = preprocess_line(line) 
-                total_input = total_input + processed_line #concatenates corpus together
+                if len(line) > 2:
+                    processed_line = preprocess_line(line) 
+                    total_input = total_input + processed_line #concatenates corpus together
         return find_bi_tri_grams(total_input)
 
 def bigram_viewer(alpha,num,infile,bi_counts):
@@ -123,6 +126,8 @@ def perplexity_computation(file,model):
         trigram_prob = 0
         total_text = ''
         for line in f:
+            if line == '\n':
+                continue
             processed_line = preprocess_line(line)
             total_text = total_text + processed_line
         
@@ -138,6 +143,7 @@ def perplexity_computation(file,model):
                                # enforced by preprocessing.  Thus, disregard, 
                                # and reduce the tri count to prevent it from 
                                # affecting the final perplexity value.
+        # print(total_tris)
         log_perplexity = total_prob*(-1/total_tris)
         perplexity = pow(10,log_perplexity)
     return perplexity
@@ -221,6 +227,22 @@ def generate_from_LM(num_of_chars,tri_probs,valid_char_list,non_sequence_marker_
               
     return seq
 
+def de_process(sequence):
+    de_processed_line = str()
+    eol = False
+    for index,i in enumerate(sequence):
+        if index == 0:
+            continue
+        if i == '#':
+            if eol:
+                eol = False
+            else:
+                de_processed_line += '\n'
+                eol = True
+        else:
+            de_processed_line += i
+    return de_processed_line
+        
 def valid_char_generator():
     valid_char_list = [' ','.','0','#']
     non_sequence_marker_list = [' ','.','0']
@@ -261,36 +283,49 @@ def create_smoothing_add_one(bi_counts,tri_counts,valid_char_list):
     return smoothed_model
 
 ## Add alpha Smoothing
-def create_smoothing_add_alpha(alpha,bi_counts,tri_counts):
+def create_smoothing_add_alpha(alpha,bi_counts,tri_counts,valid_char_list):
     print('Applying add alpha smoothing to the values')
     smoothed_model = defaultdict(int)
-    valid_char_list = [' ','.','0']
-    for i in range(ord('a'),ord('z')+1):
-        valid_char_list.append(chr(i))
     all_possible_trigrams = []
+
     for char1 in valid_char_list:
         for char2 in valid_char_list:
             for char3 in valid_char_list:
+                if char1=='#' and char2=='#' and char3=='#':
+                    continue # can never be 3#s one after the other
+                if char2=='#' and char1 != '#':
+                    continue # can never be a # stuck between two other characters
+                if (char1 == '#' and char3 == '#'):
+                        continue # cannot have #a#, too short a sentence 
                 all_possible_trigrams.append(char1+char2+char3)
-    V = len(valid_char_list)
+
+    V = len(valid_char_list) 
     for trigram in all_possible_trigrams:
-        smoothed_model[trigram] = (tri_counts[trigram] + alpha) / (bi_counts[trigram[0:2]] + (alpha * V))
-    save_model_to_file(smoothed_model , '../assignment1-models/Empirical_Model_Smoothed_en')
+        if trigram[0] == '#': 
+            V_act = V-1
+        else:
+            V_act = V
+        smoothed_model[trigram] = (tri_counts[trigram] + alpha) / (bi_counts[trigram[0:2]] + (alpha * V_act))
     print ('Add alpha smoothing completed')
-    return  
+    return  smoothed_model
 
 ## Interpolation Smoothing
-def create_smoothing_by_interpolation(bi_counts,tri_counts):
+def create_smoothing_by_interpolation(bi_counts,tri_counts,valid_char_list):
     print('Applying interpolation smoothing to the values')
     smoothed_model = defaultdict(int)
-    valid_char_list = [' ','.','0']
-    for i in range(ord('a'),ord('z')+1):
-        valid_char_list.append(chr(i))
     all_possible_trigrams = []
+
     for char1 in valid_char_list:
         for char2 in valid_char_list:
             for char3 in valid_char_list:
+                if char1=='#' and char2=='#' and char3=='#':
+                    continue # can never be 3#s one after the other
+                if char2=='#' and char1 != '#':
+                    continue # can never be a # stuck between two other characters
+                if (char1 == '#' and char3 == '#'):
+                        continue # cannot have #a#, too short a sentence 
                 all_possible_trigrams.append(char1+char2+char3)
+
     for trigram in all_possible_trigrams:
         trigram_value = 0
         bigram_value = 0
@@ -302,9 +337,9 @@ def create_smoothing_by_interpolation(bi_counts,tri_counts):
         if(total_count['total'] > 0):
             unigram_value = uni_counts[trigram[0]] / total_count['total']      
         smoothed_model[trigram] = (0.6 * trigram_value) + (0.3 * bigram_value) + (0.1 * unigram_value)
-    save_model_to_file(smoothed_model , '../assignment1-models/Empirical_Model_Smoothed_en')
+
     print ('Interpolation smoothing completed')
-    return 
+    return smoothed_model
 
 def model_checker(model,valid_char_list):
     
@@ -320,6 +355,8 @@ def model_checker(model,valid_char_list):
         all_tris = [bigram + i for i in valid_char_list]
         distribution = [model[i] for i in all_tris]
         if sum(distribution) < 0.999:
+            print ('Warning:')
+            print (sum(distribution))
             print (bigram)
         # print (sum(distribution))
 
@@ -329,17 +366,18 @@ def main_routine():
     debugger = True # select when filepath is non-dynamic
     testing = False # select when modelling only specific line of an input file
     modelling = False # select when running program only to test perplexity of a test doc
-    alpha = False # select whether or not to display all trigrams/bigrams alphabetically
+    alphabet = False # select whether or not to display all trigrams/bigrams alphabetically
     num = False # select whether or not to display all trigrams/bigrams numerically
-    line_num = 6 # line number for pinpointed model testing
+    line_num = 119 # line number for pinpointed model testing
     model_lang = 'en'# english(en), german(de) or spanish(es)
     valid_char_list,non_sequence_marker_list = valid_char_generator()# generates all valid characters
     test_given_model = False #decides which model to test
     dummy_modelling = False # choose whether or not to model the dummy example
+    alpha = 0.1
 
     # Input files
     test_file = '../assignment1-data/test' # final test data
-    model_file = '../assignment1-models/Empirical_Model_Smoothed_en' # generated model
+    model_file = '../assignment1-models/Empirical_Model_Smoothed_'+model_lang # generated model
     given_model_file = '../assignment1-models/model-br.en' # given model
     
 
@@ -378,12 +416,14 @@ def main_routine():
             # print ('Trigram Computations Complete')
             # -------Smoothing Done in this section -------
             smoothed_model = create_smoothing_add_one(bi_counts,tri_counts,valid_char_list)
-            #  smoothed_model = create_smoothing_add_alpha(0.8,bi_counts,tri_counts,valid_char_list)
+            smoothed_alpha_model = create_smoothing_add_alpha(alpha,bi_counts,tri_counts,valid_char_list)
             #  smoothed_model = create_smoothing_by_interpolation(bi_counts,tri_counts,valid_char_list)
             # --------Smoothing Section completed -------
-
             save_model_to_file(smoothed_model,'../assignment1-models/Empirical_Model_Smoothed_' + model_lang)
-            print ('Model saved to file')
+            
+            save_model_to_file(smoothed_alpha_model,'../assignment1-models/Empirical_Model_Smoothed_'+str(alpha)+'_' + model_lang)
+
+            print ('Model(s) saved to file')
             trigram_with_two_character_history('n','g',smoothed_model)
             print('Question 4:')
             print('----------------------')
@@ -392,23 +432,123 @@ def main_routine():
             print ('--')
             sequence = generate_from_LM(300,smoothed_model,
                         valid_char_list,non_sequence_marker_list)
+            sequence = de_process(sequence)
             print (sequence) 
             print ('--')
             print ('Random sequence from given model:')
             print ('--')
             sequence = generate_from_LM(300,given_model,
                         valid_char_list,non_sequence_marker_list)
+            sequence = de_process(sequence)
             print (sequence)
             print('Question 5:')
             print('----------------------')
-            print ('Perplexity of test file under English model: '
+            print ('Perplexity of test file under '+model_lang.upper()+' model: '
                  +str(perplexity_computation(test_file,smoothed_model)))
-            model_checker(given_model,valid_char_list)
-        bigram_viewer(alpha,num,infile,bi_counts)
-        trigram_viewer(alpha,num,infile,tri_counts)
+            model_checker(smoothed_alpha_model,valid_char_list)
+        bigram_viewer(alphabet,num,infile,bi_counts)
+        trigram_viewer(alphabet,num,infile,tri_counts)
+
+def batch_modelling():
+ 
+    debugger = True
+    test_given_model = False
+    # Input files
+    model_lang = 'de'
+    model_file = '../assignment1-models/Empirical_Model_Smoothed_'+model_lang # generated model
+    given_model_file = '../assignment1-models/model-br.en' # given model
+
+    if debugger:
+        infolder =  '../assignment1-data/friends_es/'
+    else:
+        infolder = terminal_input_filepath() # user-provided input
+   
+    if test_given_model:
+        model_use = read_model_from_file(given_model_file)
+    else:
+        model_use = read_model_from_file(model_file)
+
+    all_perps = []
+    for direc in os.listdir(infolder):
+        # infile = infolder + 'episode-' +str(i) +  '.txt'
+        infile = infolder + direc
+        if os.path.getsize(infile) == 0:
+            continue
+        perp = perplexity_computation(infile,model_use)
+        all_perps.append(perp)
+    print (np.mean(all_perps))
+
+def plot_histogram(vals,counts):
+    x_pos = np.arange(len(counts)) 
+    barlist = plt.bar(x_pos,counts)
+    [barlist[i].set_color('r') for i in range(0,3)]
+    [barlist[i].set_color('b') for i in range(3,6)]
+    [barlist[i].set_color('g') for i in range(6,9)]
+    barlist[9].set_color('k') 
+
+    plt.xticks(x_pos, vals)
+    plt.ylim([0,50])
+    # plt.show()
+    plt.savefig('../assignment1-models/bars.png',dpi = 800)
+
+def random_generate_and_rebuild():
+
+    given_model_file = '../assignment1-models/model-br.en' # given model
+    valid_char_list,non_sequence_marker_list = valid_char_generator()# generates all valid characters
+
+    given_model = read_model_from_file(given_model_file)
+
+    sequence = generate_from_LM(1000000,given_model,
+                valid_char_list,non_sequence_marker_list)
+    print('here')
+    bi_counts,tri_counts = find_bi_tri_grams(sequence)
+
+    means = []
+    alphas = np.arange(0.0,2.0,0.04)
+    for alpha in alphas:
+        
+        re_done_model = create_smoothing_add_alpha(alpha,bi_counts,tri_counts,valid_char_list)
+        
+        full_sum = 0
+        count = 0
+        for k,v in re_done_model.items():
+            count += 1
+            full_sum += abs(v - given_model[k])
+        mean = full_sum/count
+        means.append(mean)
+        print('Mean for alpha of',alpha,':' +str(mean))
+    plt.plot(alphas,means)
+    plt.xlabel('alphas')
+    plt.ylabel('errors')
+    plt.show()
+    # plt.savefig('../assignment1-models/test.png')
+    save_model_to_file(re_done_model,'../assignment1-models/given_model_repeat')
+
+def language_comparison():
+
+    # Input files
+    model_langs = ['en','es','de']
+    alphas = ['0.1','0.5','0.8']
+
+    a_labels = [[ j + '_' + i  for j in alphas] for i in model_langs]
+    a_labels = [item for sublist in a_labels for item in sublist]
+    models = ['../assignment1-models/Empirical_Model_Smoothed_'+i for i in model_langs]
+    a_models = ['../assignment1-models/Empirical_Model_Smoothed_'+i for i in a_labels]
+    given_model_file = '../assignment1-models/model-br.en' # given model
+    a_models.append(given_model_file)
+    a_labels.append('given')
+    test_file = '../assignment1-data/test' 
+
+    perps = []
+    for model in a_models:
+        model_use = read_model_from_file(model)
+        perp = perplexity_computation(test_file,model_use)
+        perps.append(perp)
+    plot_histogram(a_labels,perps)
 
 if __name__ == '__main__':
-    main_routine()
-# do tables and graphs for presentation
-# Smoothing
-
+    # main_routine()
+    # batch_modelling()
+    # language_comparison()
+    random_generate_and_rebuild()
+# number of N grams required until coherence is achieved?

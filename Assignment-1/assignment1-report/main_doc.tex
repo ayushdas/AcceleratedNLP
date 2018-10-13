@@ -29,7 +29,7 @@
 \usepackage{fancyhdr}
 \usepackage{gensymb}
 \pagestyle{fancy}
-\DeclareGraphicsExtensions{.jpg,.png}
+\DeclareGraphicsExtensions{.jpg,.png,.pdf}
 
 \usepackage{anyfontsize}
 
@@ -65,6 +65,14 @@
 	tabsize=2
 }
 \lstset{style=mystyle}
+
+
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+\makeatletter
+\def\BState{\State\hskip-\ALG@thistlm}
+\makeatother
 
 \usepackage[nottoc,numbib]{tocbibind}
 
@@ -102,7 +110,71 @@
 \section{Introduction}
 
 \section{Random Sequence Generation - Question 4}
+\subsection{Raw Application of Language Model}
+After having generated and built a language model, the model itself can be used as is to generate new sequences.
+\subsection{Random generation}
+\begin{algorithm}
+	\caption{Random Generation}\label{RanGen}
+	\begin{algorithmic}[1]
+		\Procedure{generate\_from\_lm}{Num\_Chars, Model, Valid\_Char\_List}
+		\State $sequence = empty$
+		\State $bigram\_in \gets  \text{`\#'} + random(Valid\_Char\_List)$
+		\State $chars\_left \gets Num\_Chars -1$
+		\BState \emph{loop}:
+		\If {$chars\_left > 0$}
+		\State $pos\_tris \gets [bigram\_in + Valid\_Char\_List]$.
+		\State $distribution \gets model[pos\_tris]$.
+		\State $bins \gets cumulative sum(distribution)$
+		\State $seq\_pos \gets random\_bin\_select(bins)$
+		\State $new\_seq \gets pos\_tris[seq\_pos]$
+		\State $bigram\_in \gets new\_seq[0:1]$
+		\State $sequence \gets sequence + new\_seq[2]$
+		\State $chars\_left \gets chars\_left - 1$
+		\State \textbf{goto} \emph{loop}.
+		\EndIf
+		\State \textbf{return} $sequence$
+		\EndProcedure
+	\end{algorithmic}
+\end{algorithm}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\linewidth]{graphics/Random_Gen}
+	\caption{Random selection from a probability distribution}
+	\label{fig:randomgen}
+\end{figure}
+
+\subsection{Results}
+
 \section{Perplexity Computation - Question 5}
+This part of the assignment dealt with utilising the generated language models to assess the content of a given text.
+\subsection{Perplexity Computation}
+A perplexity measure attempt to measure how well a given model predicts a selected text sample.  A low perplexity indicates the model is well suited to predicting the selected text, whilst a high perplexity indicates the model is unsuited for the text selected.  The general equation for perplexity computation is as follows:
+\begin{equation}
+	PP_{M} = P_{M}\left( w_{1}.... w_{n}\right)^{-\frac{1}{n}}
+\end{equation}
+Taking logs:
+\begin{equation}
+log\left(PP_{M}\right) = log\left(P_{M}\left( w_{1}.... w_{n}\right)^{-\frac{1}{n}}\right)
+\end{equation}
+\begin{equation}
+log\left(PP_{M}\right) = -\frac{1}{n}\times log\left(P_{M}\left( w_{1}.... w_{n}\right)\right)
+\end{equation}
+\begin{equation}
+log\left(PP_{M}\right) = -\frac{1}{n} \sum_{i=1} ^{n}\left( log(P_{M}(w_{1})) + ... + log(P_{M}(w_{n})) \right)
+\end{equation}
+\subsection{Test Results}
+
+
+
+\subsection{Document Language Determination}
+Following the categorisation of the 
+%read in a doc and  test perplex.
+%perplexity of test doc under all language models
+%how to use numbers to guess language
+% if used on a random file, enough to guess if english?
+%
+
+
 \section{Conclusions}
 
 \end{document}
