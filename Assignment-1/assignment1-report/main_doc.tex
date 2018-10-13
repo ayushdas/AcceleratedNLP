@@ -18,6 +18,8 @@
 \usepackage{geometry}
 \usepackage{enumerate}
 \usepackage{array, booktabs}  
+%\usepackage{multirow}
+%\usepackage{tabularx}
 \geometry{
 	a4paper ,
 	total={170mm,257mm},
@@ -76,7 +78,7 @@
 
 \usepackage[nottoc,numbib]{tocbibind}
 
-\setlength{\arrayrulewidth}{1mm}
+
 \setlength{\tabcolsep}{18pt}
 \renewcommand{\arraystretch}{1.5}
 % To Dos:
@@ -109,72 +111,165 @@
 	
 \section{Introduction}
 
+The main scope of this assignment is to analyse....
+
 \section{Random Sequence Generation - Question 4}
-\subsection{Raw Application of Language Model}
-After having generated and built a language model, the model itself can be used as is to generate new sequences.
-\subsection{Random generation}
-\begin{algorithm}
-	\caption{Random Generation}\label{RanGen}
-	\begin{algorithmic}[1]
-		\Procedure{generate\_from\_lm}{Num\_Chars, Model, Valid\_Char\_List}
-		\State $sequence = empty$
-		\State $bigram\_in \gets  \text{`\#'} + random(Valid\_Char\_List)$
-		\State $chars\_left \gets Num\_Chars -1$
-		\BState \emph{loop}:
-		\If {$chars\_left > 0$}
-		\State $pos\_tris \gets [bigram\_in + Valid\_Char\_List]$.
-		\State $distribution \gets model[pos\_tris]$.
-		\State $bins \gets cumulative sum(distribution)$
-		\State $seq\_pos \gets random\_bin\_select(bins)$
-		\State $new\_seq \gets pos\_tris[seq\_pos]$
-		\State $bigram\_in \gets new\_seq[0:1]$
-		\State $sequence \gets sequence + new\_seq[2]$
-		\State $chars\_left \gets chars\_left - 1$
-		\State \textbf{goto} \emph{loop}.
-		\EndIf
-		\State \textbf{return} $sequence$
-		\EndProcedure
-	\end{algorithmic}
-\end{algorithm}
+Random generation from the the trigram model is a `raw' application of the model, where the model's probabilities are translated directly into text.  This output should represent the type of text the model is trained on, and will  take on the features represented within the model's training source.  This section provides a brief analysis of how random generation is carried out on the model, and discusses the differences between the outputs of the given model and the model estimated on the English training data.
+\subsection{Random Generation Algorithm}
+To actually generate the sequence, the model must select which character to output given the previous two character sequence (bigram).  The model contains the probability of each possible character which can come after the particular bigram.  Thus, the model simply needs to randomly sample from this distribution and output the result to produce the next character in the sequence.  To do this, a probability binning system as in Figure \ref{fig:randomgen} was put in place.
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.7\linewidth]{graphics/Random_Gen}
 	\caption{Random selection from a probability distribution}
 	\label{fig:randomgen}
 \end{figure}
+Essentially, each probability in the distribution was put into bins corresponding to their size (as with P1,P2,P3 \& P4 in Figure \ref{fig:randomgen}).  With this setup in place, a random number was generated from the uniform continuous distribution, and the probability bin to which this number corresponded was selected as the next character in the sequence.  This system self-propagates itself; each new character produces a new biagram on which to base the next random generation.  The first bigram was set to always be a `\#' followed by a random character.\\
+\hfill\break
+Whenever a `\#' is generated, this signifies a line break (as explained in the answer to Question 1).  Thus, the system was set to automatically add another `\#' when this occurs, signifying both the end of a line and the start of a new one.  The next output character in the sequence will then be based on a `\#\#' bigram.  This system works for both the Europarl and given model.  The extra `\#' is of course not included in the count of random characters.\\
+\hfill\break
+The random generation process has also been summarised in pseudocode, as shown in \\Algorithm \ref{RanGen}.
 
-\subsection{Results}
 
+\begin{algorithm}[H]
+	\caption{Random Generation}\label{RanGen}
+	\begin{algorithmic}[1]
+		\Procedure{generate\_from\_lm}{Num\_Chars, Model, Valid\_Char\_List}
+		\State $sequence = []$
+		\State $bigram\_in \gets  \text{`\#'} + random(Valid\_Char\_List)$
+		\State $chars\_left \gets Num\_Chars -1$
+		\BState \emph{loop}:
+		\If {$chars\_left > 0$}
+				\If {$bigram\_in[1] == \text{`\#'} \ and\  bigram\_in[0]\ !=  \text{`\#'} $}
+				\State $sequence \gets sequence +  \text{`\#'} $
+				\Else
+				\If {$bigram\_in == \text{`\#\#'}  $}
+						    \State $possible\_tris \gets [bigram\_in + Valid\_Char\_List[excluding\ \text{`\#'}]]$.
+				\Else
+						     \State $possible\_tris \gets [bigram\_in + Valid\_Char\_List]$.
+				\EndIf
+		     	\State $distribution \gets model[possible\_tris]$.
+		     	\State $bins \gets cumulative\_sum(distribution)$
+		     	\State $distribution\_pos \gets random\_bin\_select(bins)$
+		     	\State $new\_sequence \gets pos\_tris[distribution\_pos]$
+		     	\State $bigram\_in \gets new\_sequence[0:1]$
+		     	\State $sequence \gets sequence + new\_sequence[2]$
+		     	\State $chars\_left \gets chars\_left - 1$
+		     	\EndIf
+		     	\State \textbf{goto} \emph{loop}.
+				
+		\EndIf
+		\State \textbf{return} $sequence$
+		\EndProcedure
+	\end{algorithmic}
+\end{algorithm}
+
+
+\subsection{Sample Outputs}
+When generating 300 sample characters of output from both models, two sample outputs obtained are shown below (\textcolor{red}{NL} signifies a new line, all `\#'s have been removed):\\
+
+Generated from the Add-One-Smoothing Model trained on `training.en':\\
+\hfill\break
+\textit{.wyouterentlsol popmple be opmum pareen willon wity.\textcolor{red}{NL}\\
+	mfte stragnu\textcolor{red}{NL}\\
+	th thesion an lk.ltqnqake shou hatin actiong the we mad onlaticlasted betterevicand theqqltese the tooving miss ted\textcolor{red}{NL}\\
+	welv0comh.x.gfunalwcnme counat implound thinitate trat to shose und be cof wo st pe of goin inagend thas new orwgoodur\\}
+\hfill\break
+Generated from the given model, `model-br.en':\\
+\hfill\break
+\textit{me it you ch ons.\textcolor{red}{NL}\\
+	the get doggir.\textcolor{red}{NL}\\
+	mor hose.\textcolor{red}{NL}\\
+	whaskis it.\textcolor{red}{NL}\\
+	ok.\textcolor{red}{NL}\\
+	theres so thes doings.\textcolor{red}{NL}\\
+	okay.\textcolor{red}{NL}\\
+	what thet doin.\textcolor{red}{NL}\\
+	them sho some right.\textcolor{red}{NL}\\
+	oks.\textcolor{red}{NL}\\
+	he ill one.\textcolor{red}{NL}\\
+	wast wally not put want there buchats.\textcolor{red}{NL}\\
+	ye.\textcolor{red}{NL}\\
+	righ thesnt.\textcolor{red}{NL}\\
+	hos tope.\textcolor{red}{NL}\\
+	his dog.\textcolor{red}{NL}\\
+	im his truseen ther.\textcolor{red}{NL}\\
+	low yout apeer a toor.\textcolor{red}{NL}\\
+	yeah.\textcolor{red}{NL}\\
+	spee to tin you dog this backlif}
+\subsection{Comments}
+\begin{itemize}
+	\item  The given model has line breaks after nearly every full stop.  The trained model places line breaks after full stops much less.  This  is possibly caused by the small size of the test data used.  The Europarl model has not prioritized new lines after full stops enough, even though most line breaks come after full stops in the training data. 
+	\item  The given model produces much more new lines than the trained model.  The Europarl model has been trained on a corpus containing many long sentences, which explains why its output contains many long sentences in turn.  For the given model, this could possibly signify the model was training on data from some poem or text containing many short sentences.
+	\item The given model actually produces some coherent words, whilst the Europarl model produces many more jumbled up words.  Again, this could be a consequence of the small size of the data used.  Interestingly, the given model contains many words such as `toy', `dog', `pup', `boy' or `daddy'.  This again points to the training text for this model being based on some kid-friendly text, possibly with very few sentences to make reading easier.  Of course, this could also be some form of dialogue between a child and his parents.  The Europarl model occasionally produces words such as `important' which appear frequently within the text.
+\end{itemize}
 \section{Perplexity Computation - Question 5}
-This part of the assignment dealt with utilising the generated language models to assess the content of a given text.
+Perplexity is a measure of how well a model can predict the characters within a text corpus.  Essentially, it shows how well a text file's contents are related to the probabilities stored within a model.  This section provides an analysis of the different languages model, and how it fares against familiar and unfamiliar types of inputs.
 \subsection{Perplexity Computation}
-A perplexity measure attempt to measure how well a given model predicts a selected text sample.  A low perplexity indicates the model is well suited to predicting the selected text, whilst a high perplexity indicates the model is unsuited for the text selected.  The general equation for perplexity computation is as follows:
-\begin{equation}
-	PP_{M} = P_{M}\left( w_{1}.... w_{n}\right)^{-\frac{1}{n}}
+The general equation for perplexity ($PP_{M}$) computation is shown in Equation \ref{PP}.
+\begin{equation}\label{PP}
+	PP_{M} = P_{M}\left( c_{1}.... c_{n}\right)^{-\frac{1}{n}}
 \end{equation}
-Taking logs:
-\begin{equation}
-log\left(PP_{M}\right) = log\left(P_{M}\left( w_{1}.... w_{n}\right)^{-\frac{1}{n}}\right)
-\end{equation}
-\begin{equation}
-log\left(PP_{M}\right) = -\frac{1}{n}\times log\left(P_{M}\left( w_{1}.... w_{n}\right)\right)
-\end{equation}
-\begin{equation}
-log\left(PP_{M}\right) = -\frac{1}{n} \sum_{i=1} ^{n}\left( log(P_{M}(w_{1})) + ... + log(P_{M}(w_{n})) \right)
-\end{equation}
-\subsection{Test Results}
+Where $P_{M}(...)$ is the product of the probability of each character($c_{i}$) in an input text, and $n$ is the total number of characters in the input.  Using direct probabilities, however, will result in a number which is too small for  proper representation.  Thus, a log system was used by converting the perplexity measure into a log perplexity measure as follows:
+\[log\left(PP_{M}\right) = log\left(P_{M}\left( c_{1}.... c_{n}\right)^{-\frac{1}{n}}\right)\]
 
+\[log\left(PP_{M}\right) = -\frac{1}{n}\times log\left(P_{M}\left( c_{1}.... c_{n}\right)\right)\]
+\begin{equation}\label{logPP}
+log\left(PP_{M}\right) = -\frac{1}{n} \sum_{i=1} ^{n}\left( log(P_{M}(c_{1})) + ... + log(P_{M}(c_{n})) \right)
+\end{equation}
+The result, Equation \ref{logPP}, can be easily converted back to the normal perplexity measure by taking the antilog of its value.  This system allows one to compute the perplexity without running into any numerical representation issues.  This system was implemented as a standalone function, along with a number of checks to deal with the double `\#' preprocessing and other inadmissible conditions.  
+\subsection{Testing the Language Models}
+The test document provided acts as being an `unseen' document, and should act as a good validation of the expected result for each language model, at least with an English text input.  Each language model with Add-One Smoothing was used to calculate the perplexity of the test document, with the results shown in Table \ref{TR} (the model file result has been added for comparison).
+	\begin{table}[H]
+	\centering
+	\setlength\arrayrulewidth{1pt}
+	\caption{\label{TR}Perplexity results on the English test file }
+	\begin{tabular}{c  c }
+		\hline
+		\textbf{Language Model} & \textbf{Perplexity (4 d.p.)} \\
+		\hline                     
+	English& \textbf{8.8696}\\
+	German & 22.9270 \\
+	Spanish & 22.5249 \\
+	Given & 22.0930\\
+	\end{tabular}
+\end{table}
+Looking at these results, it is clear that from the three language models, the English model has found the test document to be the least perplex, and by a large margin ($\sim$13.5).  This should mean that, by analyzing a document with all three of the models, one should be able to easily infer the language of the test document by finding the outlier (and much lower) perplexity value.  Further perplexity tests were carried out on a Spanish \cite{GSpan} and German document \cite{GSpan}, the results of which are shown in Table \ref{SR}.
 
+\begin{table}[H]
+	\centering
+	\setlength\arrayrulewidth{1pt}
+	\caption{\label{SR}Perplexity results on Spanish and German test files }
+	\begin{tabular}{c c c}
+		\hline
+		\textbf{Language Model} & \multicolumn{2}{c}{\textbf{Perplexity (4 d.p.)} }\\
+		\hline
+		  & \textbf{Spanish File} & \textbf{German File} \\
+		\hline                     
+		English& 22.6965 & 20.6750\\
+		German & 29.3398 & \textbf{8.6951}\\
+		Spanish & \textbf{11.3395} & 27.9311\\
+		Given & 51.9747& 45.1458\\
+	\end{tabular}
+\end{table}
+
+Again, the perplexity results show a clear indication towards the correct document language, with the margin of perplexity difference between the correct language and other languages being at least 11. 
 
 \subsection{Document Language Determination}
-Following the categorisation of the 
-%read in a doc and  test perplex.
-%perplexity of test doc under all language models
-%how to use numbers to guess language
-% if used on a random file, enough to guess if english?
-%
 
+Whilst using all three models in tandem results in a good language classifier, using just one model for classification does not, even just for detecting the model's trained language.  This is easy to confirm using just the two English models - the given model and the Europarl English model.\\
+\hfill\break
+Looking back at tables \ref{TR} and \ref{SR}, the given and Europarl model perplexity results vary considerably.  In Table \ref{TR}, the Europarl model reports back a perplexity of $\sim$8 whilst the given model reports a perplexity of $\sim$22.  Taking the Europarl model itself, one might think that it should be obvious that the test document is written in English.  However, had one used just the given model, one would think twice before deciding on the language!  It is entirely possible that the Europarl model could assign such a high perplexity to an English document too, if the document is written in a format very different (e.g. with very short sentences or with many slang words) to the one it was trained on.\\
+\hfill\break
+It is clear that using just one model in isolation is not enough to determine the language of a document.  One would need models of all the other possible languages the document could be in, in order to correctly deduce the document language.  Furthermore, each language model should ideally be trained on the same style and format of corpus (or a translation of the same corpus) in order to make sure that the only difference between models is in the language, and not in formatting or context.  
+\subsection{Effects of Smoothing on Perplexity}
+Two other methods of smoothing were implemented - Add Alpha Smoothing and Interpolation Smoothing.
+% Add data here - should be insignificant
+\section{Identifying Document Type - Question 6}
 
 \section{Conclusions}
+\begin{thebibliography}{2}
+	\bibitem{FSpan}  Friends Script Spanish Translations: https://www.friendspeich.com/guiones01.php
+\bibitem{GSpan}German Text Source: https://lingua.com/german/reading/
+\end{thebibliography}
 
 \end{document}

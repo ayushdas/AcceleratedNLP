@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.10.23)  12 OCT 2018 01:45
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.10.23)  13 OCT 2018 20:18
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -753,26 +753,26 @@ Package tocbibind Note: Using section or other style headings.
 ) (./main_doc.aux)
 \openout1 = `main_doc.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 86.
-LaTeX Font Info:    ... okay on input line 86.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 86.
-LaTeX Font Info:    ... okay on input line 86.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 86.
-LaTeX Font Info:    ... okay on input line 86.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 86.
-LaTeX Font Info:    ... okay on input line 86.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 86.
-LaTeX Font Info:    ... okay on input line 86.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 86.
-LaTeX Font Info:    ... okay on input line 86.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 86.
-LaTeX Font Info:    ... okay on input line 86.
-LaTeX Font Info:    Try loading font information for OT1+lmr on input line 86.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 88.
+LaTeX Font Info:    ... okay on input line 88.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 88.
+LaTeX Font Info:    ... okay on input line 88.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 88.
+LaTeX Font Info:    ... okay on input line 88.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 88.
+LaTeX Font Info:    ... okay on input line 88.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 88.
+LaTeX Font Info:    ... okay on input line 88.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 88.
+LaTeX Font Info:    ... okay on input line 88.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 88.
+LaTeX Font Info:    ... okay on input line 88.
+LaTeX Font Info:    Try loading font information for OT1+lmr on input line 88.
  (/usr/local/texlive/2016/texmf-dist/tex/latex/lm/ot1lmr.fd
 File: ot1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 \AtBeginShipoutBox=\box32
-Package hyperref Info: Link coloring ON on input line 86.
+Package hyperref Info: Link coloring ON on input line 88.
 
 (/usr/local/texlive/2016/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2012/10/27 v2.43 Cross-referencing by name of section
@@ -782,9 +782,9 @@ Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
 )
 \c@section@level=\count137
 )
-LaTeX Info: Redefining \ref on input line 86.
-LaTeX Info: Redefining \pageref on input line 86.
-LaTeX Info: Redefining \nameref on input line 86.
+LaTeX Info: Redefining \ref on input line 88.
+LaTeX Info: Redefining \pageref on input line 88.
+LaTeX Info: Redefining \nameref on input line 88.
 
 (./main_doc.out) (./main_doc.out)
 \@outlinefile=\write3
@@ -856,24 +856,24 @@ Package caption Info: End \AtBeginDocument code.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-LaTeX Info: Redefining \celsius on input line 86.
-Package gensymb Info: Faking symbols for \degree and \celsius on input line 86.
+LaTeX Info: Redefining \celsius on input line 88.
+Package gensymb Info: Faking symbols for \degree and \celsius on input line 88.
 
 
 Package gensymb Warning: Not defining \perthousand.
 
-LaTeX Info: Redefining \ohm on input line 86.
-Package gensymb Info: Using \Omega for \ohm on input line 86.
+LaTeX Info: Redefining \ohm on input line 88.
+Package gensymb Info: Using \Omega for \ohm on input line 88.
 
 Package gensymb Warning: Not defining \micro.
 
 
-<"./graphics/avatar-roundel-blackonwhite".png, id=40, 246.6816pt x 246.6816pt>
+<"./graphics/avatar-roundel-blackonwhite".png, id=56, 246.6816pt x 246.6816pt>
 File: "./graphics/avatar-roundel-blackonwhite".png Graphic file (type png)
 
 <use "./graphics/avatar-roundel-blackonwhite".png>
 Package pdftex.def Info: "./graphics/avatar-roundel-blackonwhite".png used on i
-nput line 91.
+nput line 93.
 (pdftex.def)             Requested size: 139.98898pt x 139.99266pt.
  [1
 
@@ -915,36 +915,83 @@ pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has
 been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.108 \newpage
-               [1]
-Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
-put line 117.
- <graphics/Random_Gen.pdf, id=64, 601.37074pt x 279.70618pt>
+l.110 \newpage
+               [1] <graphics/Random_Gen.pdf, id=85, 601.37074pt x 279.70618pt>
 File: graphics/Random_Gen.pdf Graphic file (type pdf)
 
 <use graphics/Random_Gen.pdf>
-Package pdftex.def Info: graphics/Random_Gen.pdf used on input line 141.
+Package pdftex.def Info: graphics/Random_Gen.pdf used on input line 122.
 (pdftex.def)             Requested size: 326.63622pt x 151.9268pt.
- [2 <./graphics/Random_Gen.pdf>]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 177.
- [3]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 177.
 
-(./main_doc.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 177.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 177.
+Underfull \hbox (badness 10000) in paragraph at lines 126--131
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 126--131
+
+ []
+
+[2 <./graphics/Random_Gen.pdf>]
+Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
+put line 134.
+
+Underfull \hbox (badness 10000) in paragraph at lines 168--169
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 170--199
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 170--199
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 170--199
+
+ []
+
+[3]
+LaTeX Font Info:    Try loading font information for OMS+lmr on input line 201.
+
+ (/usr/local/texlive/2016/texmf-dist/tex/latex/lm/omslmr.fd
+File: omslmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
+)
+LaTeX Font Info:    Font shape `OMS/lmr/m/n' in size <12> not available
+(Font)              Font shape `OMS/lmsy/m/n' tried instead on input line 201.
+ [4] [5]
+Underfull \hbox (badness 10000) in paragraph at lines 259--264
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 259--264
+
+ []
+
+[6]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 275.
+ [7]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 275.
+ (./main_doc.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 275.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 275.
 Package rerunfilecheck Info: File `main_doc.out' has not changed.
-(rerunfilecheck)             Checksum: 91BFF4298A4ED8178CEFABF0417C7361;580.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 177.
+(rerunfilecheck)             Checksum: 0F565D4482794246D7BBDC7BC859799C;865.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 275.
  ) 
 Here is how much of TeX's memory you used:
- 9965 strings out of 493014
- 147191 string characters out of 6133350
- 246108 words of memory out of 5000000
- 13343 multiletter control sequences out of 15000+600000
+ 10016 strings out of 493014
+ 147867 string characters out of 6133350
+ 248414 words of memory out of 5000000
+ 13381 multiletter control sequences out of 15000+600000
  48278 words of font info for 36 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 42i,11n,43p,340b,422s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 42i,12n,43p,759b,465s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2016/texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}{/usr/lo
 cal/texlive/2016/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/local/texliv
 e/2016/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{/usr/local/texlive/2016/texmf-d
@@ -962,10 +1009,10 @@ usr/local/texlive/2016/texmf-dist/fonts/type1/public/lm/lmr8.pfb></usr/local/te
 xlive/2016/texmf-dist/fonts/type1/public/lm/lmri12.pfb></usr/local/texlive/2016
 /texmf-dist/fonts/type1/public/lm/lmsy10.pfb></usr/local/texlive/2016/texmf-dis
 t/fonts/type1/public/lm/lmsy8.pfb>
-Output written on main_doc.pdf (4 pages, 281197 bytes).
+Output written on main_doc.pdf (8 pages, 303091 bytes).
 PDF statistics:
- 165 PDF objects out of 1000 (max. 8388607)
- 137 compressed objects within 2 object streams
- 20 named destinations out of 1000 (max. 500000)
- 83 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 218 PDF objects out of 1000 (max. 8388607)
+ 186 compressed objects within 2 object streams
+ 30 named destinations out of 1000 (max. 500000)
+ 115 words of extra memory for PDF output out of 10000 (max. 10000000)
 

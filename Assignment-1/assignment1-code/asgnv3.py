@@ -87,6 +87,13 @@ def testing_routine(line_num,infile):
     processed_line = preprocess_line(line) # removes special characters and lowercases all letters
     print ('PROCESSED LINE:')
     print (processed_line)
+
+    line = linecache.getline(infile, line_num+1).rstrip('\n')
+    print ('LINE SELECTED:')
+    print (line)
+    processed_line = processed_line + preprocess_line(line) # removes special characters and lowercases all letters
+    print ('PROCESSED LINE:')
+    print (processed_line)
     
     return find_bi_tri_grams(processed_line)
      
@@ -212,7 +219,7 @@ def generate_from_LM(num_of_chars,tri_probs,valid_char_list,non_sequence_marker_
             if two_char_seq[-1] == '#' and two_char_seq[0] != '#':
                 output = two_char_seq[0] + '##'
             else:
-                if two_char_seq[0] == '#':
+                if two_char_seq == '##':#was two_char_seq[0] == '#'
                     trigrams = [two_char_seq + i for i in non_sequence_marker_list]                    
                 else:
                     trigrams = [two_char_seq + i for i in valid_char_list]                    
@@ -265,8 +272,8 @@ def create_smoothing_add_one(bi_counts,tri_counts,valid_char_list):
                     continue # can never be 3#s one after the other
                 if char2=='#' and char1 != '#':
                     continue # can never be a # stuck between two other characters
-                if (char1 == '#' and char3 == '#'):
-                        continue # cannot have #a#, too short a sentence 
+                # if (char1 == '#' and char3 == '#'):
+                #         continue # cannot have #a#, too short a sentence 
                 all_possible_trigrams.append(char1+char2+char3)
 
     V = len(valid_char_list) # BUG here - V is now no longer constant for all trigrams.  
@@ -274,7 +281,7 @@ def create_smoothing_add_one(bi_counts,tri_counts,valid_char_list):
                              # needs to be subtracted by 1 for that particular bigram (##) only.
                              # bug fixed in for loop
     for trigram in all_possible_trigrams:
-        if trigram[0] == '#': #bug fixed here
+        if trigram == '###': #bug fixed here, previously trigram[0] == '#'
             V_act = V-1
         else:
             V_act = V
@@ -295,13 +302,13 @@ def create_smoothing_add_alpha(alpha,bi_counts,tri_counts,valid_char_list):
                     continue # can never be 3#s one after the other
                 if char2=='#' and char1 != '#':
                     continue # can never be a # stuck between two other characters
-                if (char1 == '#' and char3 == '#'):
-                        continue # cannot have #a#, too short a sentence 
+                # if (char1 == '#' and char3 == '#'):
+                #         continue # cannot have #a#, too short a sentence 
                 all_possible_trigrams.append(char1+char2+char3)
 
     V = len(valid_char_list) 
     for trigram in all_possible_trigrams:
-        if trigram[0] == '#': 
+        if trigram == '###': 
             V_act = V-1
         else:
             V_act = V
@@ -355,7 +362,7 @@ def model_checker(model,valid_char_list):
         all_tris = [bigram + i for i in valid_char_list]
         distribution = [model[i] for i in all_tris]
         if sum(distribution) < 0.999:
-            print ('Warning:')
+            print ('WARNING:')
             print (sum(distribution))
             print (bigram)
         # print (sum(distribution))
@@ -365,18 +372,20 @@ def main_routine():
     # Parameter selection
     debugger = True # select when filepath is non-dynamic
     testing = False # select when modelling only specific line of an input file
-    modelling = False # select when running program only to test perplexity of a test doc
+    modelling = True # select when running program only to test perplexity of a test doc
     alphabet = False # select whether or not to display all trigrams/bigrams alphabetically
     num = False # select whether or not to display all trigrams/bigrams numerically
     line_num = 119 # line number for pinpointed model testing
     model_lang = 'en'# english(en), german(de) or spanish(es)
     valid_char_list,non_sequence_marker_list = valid_char_generator()# generates all valid characters
-    test_given_model = False #decides which model to test
+    test_given_model = True #decides which model to test
     dummy_modelling = False # choose whether or not to model the dummy example
-    alpha = 0.1
+    alpha = 0.5
 
     # Input files
     test_file = '../assignment1-data/test' # final test data
+    test_es = '../assignment1-data/friends_es/test.txt'
+    test_de = '../assignment1-data/test_german/test.txt'
     model_file = '../assignment1-models/Empirical_Model_Smoothed_'+model_lang # generated model
     given_model_file = '../assignment1-models/model-br.en' # given model
     
@@ -430,7 +439,7 @@ def main_routine():
             given_model = read_model_from_file(given_model_file)
             print('Random sequence from generated model:')
             print ('--')
-            sequence = generate_from_LM(300,smoothed_model,
+            sequence = generate_from_LM(300,smoothed_alpha_model,
                         valid_char_list,non_sequence_marker_list)
             sequence = de_process(sequence)
             print (sequence) 
@@ -498,13 +507,17 @@ def random_generate_and_rebuild():
 
     given_model = read_model_from_file(given_model_file)
 
-    sequence = generate_from_LM(1000000,given_model,
+    infile =  '../assignment1-data/training.en'
+    bi_counts,tri_counts = complete_model(infile) #counts bi/trigrams from input file
+    s_model = create_smoothing_add_alpha(0.6,bi_counts,tri_counts,valid_char_list)
+
+    sequence = generate_from_LM(4000,given_model,
                 valid_char_list,non_sequence_marker_list)
     print('here')
     bi_counts,tri_counts = find_bi_tri_grams(sequence)
 
     means = []
-    alphas = np.arange(0.0,2.0,0.04)
+    alphas = np.arange(0.00001,1.0,0.01)
     for alpha in alphas:
         
         re_done_model = create_smoothing_add_alpha(alpha,bi_counts,tri_counts,valid_char_list)
@@ -513,10 +526,12 @@ def random_generate_and_rebuild():
         count = 0
         for k,v in re_done_model.items():
             count += 1
-            full_sum += abs(v - given_model[k])
+            # print (v)
+            # z = (given_model[k])
+            full_sum += (v - given_model[k])**2
         mean = full_sum/count
         means.append(mean)
-        print('Mean for alpha of',alpha,':' +str(mean))
+        # print('Mean for alpha of',alpha,':' +str(mean))
     plt.plot(alphas,means)
     plt.xlabel('alphas')
     plt.ylabel('errors')
@@ -547,8 +562,8 @@ def language_comparison():
     plot_histogram(a_labels,perps)
 
 if __name__ == '__main__':
-    # main_routine()
+    main_routine()
     # batch_modelling()
     # language_comparison()
-    random_generate_and_rebuild()
+    # random_generate_and_rebuild()
 # number of N grams required until coherence is achieved?
