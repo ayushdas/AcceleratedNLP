@@ -1,13 +1,25 @@
 \BOOKMARK [1][-]{section.1}{Introduction}{}% 1
-\BOOKMARK [1][-]{section.2}{Random Sequence Generation - Question 4}{}% 2
-\BOOKMARK [2][-]{subsection.2.1}{Random Generation Algorithm}{section.2}% 3
-\BOOKMARK [2][-]{subsection.2.2}{Sample Outputs}{section.2}% 4
-\BOOKMARK [2][-]{subsection.2.3}{Comments}{section.2}% 5
-\BOOKMARK [1][-]{section.3}{Perplexity Computation - Question 5}{}% 6
-\BOOKMARK [2][-]{subsection.3.1}{Perplexity Computation}{section.3}% 7
-\BOOKMARK [2][-]{subsection.3.2}{Testing the Language Models}{section.3}% 8
-\BOOKMARK [2][-]{subsection.3.3}{Document Language Determination}{section.3}% 9
-\BOOKMARK [2][-]{subsection.3.4}{Effects of Smoothing on Perplexity}{section.3}% 10
-\BOOKMARK [1][-]{section.4}{Identifying Document Type - Question 6}{}% 11
-\BOOKMARK [1][-]{section.5}{Conclusions}{}% 12
-\BOOKMARK [1][-]{section.6}{References}{}% 13
+\BOOKMARK [1][-]{section.2}{Preprocessing Input File - Question 1}{}% 2
+\BOOKMARK [2][-]{subsection.2.1}{Code}{section.2}% 3
+\BOOKMARK [2][-]{subsection.2.2}{Additional Steps in Preprocessing}{section.2}% 4
+\BOOKMARK [2][-]{subsection.2.3}{Sample Input and Output}{section.2}% 5
+\BOOKMARK [1][-]{section.3}{Determining the Given Model's Estimation Method - Question 2}{}% 6
+\BOOKMARK [1][-]{section.4}{Trigram Character Language Model - Question 3}{}% 7
+\BOOKMARK [2][-]{subsection.4.1}{Method used to estimate the probabilities of the trigram}{section.4}% 8
+\BOOKMARK [2][-]{subsection.4.2}{Simplifying assumptions made}{section.4}% 9
+\BOOKMARK [2][-]{subsection.4.3}{n-grams with two character history `ng'}{section.4}% 10
+\BOOKMARK [3][-]{subsubsection.4.3.1}{Expectation}{subsection.4.3}% 11
+\BOOKMARK [3][-]{subsubsection.4.3.2}{Results}{subsection.4.3}% 12
+\BOOKMARK [3][-]{subsubsection.4.3.3}{Conclusion}{subsection.4.3}% 13
+\BOOKMARK [1][-]{section.5}{Random Sequence Generation - Question 4}{}% 14
+\BOOKMARK [2][-]{subsection.5.1}{Random Generation Algorithm}{section.5}% 15
+\BOOKMARK [2][-]{subsection.5.2}{Sample Outputs}{section.5}% 16
+\BOOKMARK [2][-]{subsection.5.3}{Comments}{section.5}% 17
+\BOOKMARK [1][-]{section.6}{Perplexity Computation - Question 5}{}% 18
+\BOOKMARK [2][-]{subsection.6.1}{Perplexity Computation}{section.6}% 19
+\BOOKMARK [2][-]{subsection.6.2}{Testing the Language Models}{section.6}% 20
+\BOOKMARK [2][-]{subsection.6.3}{Document Language Determination}{section.6}% 21
+\BOOKMARK [2][-]{subsection.6.4}{Effects of Smoothing on Perplexity}{section.6}% 22
+\BOOKMARK [1][-]{section.7}{Identifying Document Type - Question 6}{}% 23
+\BOOKMARK [1][-]{section.8}{Conclusions}{}% 24
+\BOOKMARK [1][-]{section.9}{References}{}% 25
