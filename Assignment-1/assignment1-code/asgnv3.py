@@ -276,12 +276,9 @@ def create_smoothing_add_one(bi_counts,tri_counts,valid_char_list):
                 #         continue # cannot have #a#, too short a sentence 
                 all_possible_trigrams.append(char1+char2+char3)
 
-    V = len(valid_char_list) # BUG here - V is now no longer constant for all trigrams.  
-                             # Wherever trigrams have been ommitted, e.g. '###', V also 
-                             # needs to be subtracted by 1 for that particular bigram (##) only.
-                             # bug fixed in for loop
+    V = len(valid_char_list) 
     for trigram in all_possible_trigrams:
-        if trigram == '###': #bug fixed here, previously trigram[0] == '#'
+        if trigram == '###': #takes care of special V case
             V_act = V-1
         else:
             V_act = V
@@ -309,7 +306,7 @@ def create_smoothing_add_alpha(alpha,bi_counts,tri_counts,valid_char_list):
     V = len(valid_char_list) 
     for trigram in all_possible_trigrams:
         if trigram == '###': 
-            V_act = V-1
+            V_act = V-1 # takes care of special V case
         else:
             V_act = V
         smoothed_model[trigram] = (tri_counts[trigram] + alpha) / (bi_counts[trigram[0:2]] + (alpha * V_act))

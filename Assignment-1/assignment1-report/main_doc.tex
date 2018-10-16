@@ -88,10 +88,10 @@
 
 \setlength{\tabcolsep}{18pt}
 \renewcommand{\arraystretch}{1.5}
-% To Dos:
-% Add comments to code - place comments on inputs/outputs of functions too apparently
 
 \setcounter{section}{-1} 
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+
 \begin{document}	
 	
 \begin{titlepage}
@@ -106,7 +106,7 @@
 	\HRule \\[1.5cm]
 	\Large
 	\vfill
-	 S1818699, S1884908\\[0.5cm]
+	 s1818699, s1884908\\[0.5cm]
 	{\large October 2018}
 \end{titlepage}
 \setlength\parindent{0pt}		
@@ -119,6 +119,7 @@
 \section{Introduction}
 The main scope of this assignment was to build trigram character models, and use them to produce random output or analyze text perplexity.  This report details the methodology followed to achieve these aims, and includes a discussion of the results obtained throughout the process.
 \section{Preprocessing Input File - Question 1}
+\label{PreProc}
 \subsection{Code}
 The code in Listing \ref{pp} demonstrates the methodology used to preprocess input lines.
 \begin{python}[caption = {Line Preprocessing},label = {pp}]
@@ -147,7 +148,9 @@ def preprocess_line(line):
 	return line
 \end{python}
 \subsection{Additional Steps in Preprocessing}
-Besides removing the illegal characters from each input line as per the specification, a `\#' character has been added to the beginning and ending of each line. This preprocessing step has been adopted in order to also gather trigrams using the beginning/ending (represented as `\#'s) of lines as input characters.  This way, information on sentence starts/ends is not lost.  Otherwise, the system would only have been able to begin estimating trigrams from the third character onwards, for every line.\\
+Besides removing the illegal characters from each input line as per the specification, a `\#' character has been added to the beginning and ending of each line. This preprocessing step has been adopted in order to also gather trigrams using the beginning/ending (represented as `\#'s) of lines as input characters.  This way, information on sentence starts/ends is not lost.  Otherwise, the system would only have been able to begin estimating trigrams from the third character onwards, for every line.  \\
+\hfill\break
+With this system in place, each line is clearly delimited as a separate sequence.  To decide on characters occurring at the beginning of a sentence (as seen later on in this report), these characters will have a `\#\#' bigram input (indicating a line start), whilst the second character of a sentence will have a `\#\_' bigram input. \\
 \hfill\break
 Additionally, the newline character `\textbackslash n' at the end of each line has also been removed, to allow for a smooth flow between lines when building n-gram models, without the need for catering for the extra `\textbackslash n'.
 \subsection{Sample Input and Output}
@@ -156,190 +159,203 @@ A sample input/output pair from the preprocessing function is provided below:\\
 Sample Input: Reanudación del período de sesiones\\
 Sample Output: \#reanudacin del perodo de sesiones\#
 \section{Determining the Given Model's Estimation Method - Question 2} 
-The language model probabilities file contains the trigram followed by the probability of the trigram conditioned on the occurrence of the first two characters in the trigram. To make an assessment of the kind of estimation method used, consider trigrams beginning with zz. 'zz' is chosen because in English there are seldom any words that have a zz followed by a character. Hence the the probabilities of such trigrams should be low and similar. On examining the trigram probabilities beginning with `zz', it is observed that all such trigrams have a probability of  
-$3.333 * 10^{-2}$.\\
-Assuming the model has been smoothed using add alpha method. The formula for add alpha smoothing is :
-\begin{equation}
- \dfrac{{count(c_{1}\ c_{2}\ c_{3})} + \alpha} {\sum count(c_1\ c_2)+ \alpha * |V|} 
+The given language model file contains a number of trigrams followed by the probability of the third character given the first two characters (bigram) in the trigram. To make an assessment of the kind of estimation method used, consider trigrams beginning with `zz'. In English, words containing a `zz' are very rare. Hence the probabilities of such trigrams should all be low and mostly close to zero. On examining the model trigram probabilities beginning with `zz', it has been observed that all such trigrams have a probability of  
+$3.333 * 10^{-2}$.  This immediately indicates that some sort of smoothing has been used to remove all zero probabilities from the model.\\
+\hfill\break
+One could assume that the model has been smoothed using the Add-Alpha (or Add-One) method. The formula for Add-Alpha smoothing is provided in Equation \ref{AA}.
+\begin{equation}\label{AA}
+ \dfrac{{count(c_{1},c_{2},c_{3})} + \alpha} {\sum count(c_1,c_2)+ \alpha * |V|} 
 \end{equation}\\  
-$(c_1,c_2,c_3)$ refer to the first, second and third characters respectively in the trigram and $|V|$ is the size of the vocabulary.\\
-When the count ($(c_1,c_2,c_3)$) = 0 and count ($(c_1,c_2,)$) = 0, equation 1 reduces to:
-\begin{equation}
-\dfrac{1} {|V|} 
-\end{equation}\\  
-In this case $|V|$ = 30 because $|V|$ is the size of the character set $ \in \{  \space ,.,0,\#,a,b,c,d,e,f,g,h,i,\\k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z\}$, hence
-\begin{equation}
-\dfrac{1} {|V|}  = \dfrac{1} {30} = 3.33 * 10^{-2}
-\end{equation}\\
-Hence we can conclude that either add one or add alpha smoothing technique has been applies for the estimation. Consider another set of trigrams beginning with `zy' . We have $p(zy\space| zy) = p(zy. | zy)$ = $3 * 10^{-1}$ and all other trigrams beginning with `zy' have a probability of $1.429 * 10^{-2}$. For instance, assuming that the count of zya = 0, equation 1 reduces to  
-\begin{equation}
-\dfrac{ \alpha} {\sum count(zy)+ \alpha * 30} = 1.429 * 10^{-2}
-\end{equation}\\
-This equation has two unknowns  $\alpha$ and $\sum count(zy)$.
-The count(zy ) or count(zy.) is not known. Hence we cannot exactly determine the value of $\alpha$ mathematically. However, we can conclude with certainty that  either add alpha or add one smoothing technique has been applied. The reason add one is also a possibility is due to the reason that when we replace the value of $\alpha$ with 1 the add alpha smoothing equation reduces to a add one smoothing equation.
-\begin{equation}
- \dfrac{{count(c_{1}\ c_{2}\ c_{3})} + \alpha} {\sum count(c_1\ c_2)+ \alpha * |V|} = \dfrac{{count(c_{1}\ c_{2}\ c_{3})} + 1} {\sum count(c_1\ c_2)+ 1 * |V|}  = \dfrac{{count(c_{1}\ c_{2}\ c_{3})} + 1} {\sum count(c_1\ c_2)+  |V|}
-\end{equation}\\  
-\section{Trigram Character Language Model - Question 3}
-\subsection{Method used to estimate the probabilities of the trigram}
-1. Collected the trigram counts for each of the three character sequence in the training document. This was stored in a python dictionary called tri\_counts.\\
-2. Collected the bigram counts for each of the two character sequence in the training document. This was stored in a python dictionary called bi\_counts.\\
-3. The trigram probabilities were estimated by referencing the tri\_counts for each trigram $(c_1,c_2,c_3)$ and dividing it by the bi\_counts of the bigram beginning with the first two characters of the trigram$(c_1,c_2)$, where $c_1,c_2,c_3 \in \{ ,.,0,\#,a,b,c,d,e,f,g,h,i,k,l,m,n,o,p,q,\\r,s,t,u,v,w,x,y,z\}$\\
-The equation used to estimate the trigram probabilities is stated in Equation 1:
-\begin{equation}
-P(trigram = c_{1}\ c_{2}\ c_{3}|c_{1}\ c_{2})= \dfrac{count(c_{1}\ c_{2}\ c_{3})}{count(c_1\ c_2)} 
-\end{equation}\\
-$c_1,c_2,c_3$  refer to the first, second and third character in the trigram sequence.\\
-\subsection{Simplifying assumptions made}
-We have extended our model to be able estimate the probabilities of unseen trigrams in the training set. For this we have implemented add one smoothing, add alpha smoothing and smoothing by interpolation. We ultimately decide to use the add one smoothing technique in our language model, because it provided the best results in terms of complexity and results.
+$(c_1,c_2,c_3)$ refer to the first, second and third characters respectively in the trigram, $\alpha$ is a tunable parameter between 0 and 1 and $|V|$ is the size of the vocabulary (i.e. all possible trigrams given the input bigram).\\
+\hfill\break
+When count $(c_1,c_2,c_3)$ = 0 and count $(c_1,c_2,)$ = 0, Equation \ref{AA} reduces to:
 
-\subsection{n-grams with two character history `ng'}
-\subsubsection{Expectation}
-It is expected that the summation of all the probabilities of n-grams with two character history `ng' will be equal to 1. This is because in a trigram starting with ng the next character has to be a character $\in \{ ,.,0,\#,a,b,c,d,e,f,g,h,i,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z\}. $This is because the data set has been preprocessed to only have these characters. Hence, when we sum all the probabilities of trigrams beginning with 'ng' conditioned on the occurrence of 'ng', the summation is bound to equal 1.  \\
+\[\dfrac{1} {|V|} \]
+
+In this case $|V|$ = 30 because the given model character set $ \in \{  \  ,.,0,\#,a,b,c,d,e,f,g,h,i,\\k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z\}$, hence:
+
+\[\dfrac{1} {|V|}  = \dfrac{1} {30} = 3.33 * 10^{-2}\]
+
+Thus, one can conclude that either Add-One or Add-Alpha smoothing technique has been applied for the model probability estimation. However, when attempting to decipher which value of $\alpha$ has been used, things become more difficult.\\
+\hfill\break
+Consider another set of rare trigrams beginning with `zy' . The model indicates $p(zy\ | zy) = p(zy. | zy)$ = $3 * 10^{-1}$ whilst all other trigrams beginning with `zy' have a probability of $1.429 * 10^{-2}$. Assuming these other trigrams all have a count of 0, Equation \ref{AA}  would reduce to:
+\[\dfrac{ \alpha} {\sum count(zy)+ \alpha * 30} = 1.429 * 10^{-2}\]
+
+This equation has two unknowns:  $\alpha$ and $\sum count(zy)$. The counts of `zy ' and `zy.' are not known. Hence we cannot exactly determine the value of $\alpha$ mathematically.  Plugging in an arbitrary value of $\alpha$ would make sense for these trigrams, but might not make sense for the rest of the trigrams in the model.  One would need to model many simultaneous equations to attempt a guess at the correct value of $\alpha$.  However, one can conclude with certainty that either Add-Alpha or Add-One smoothing has been applied within this model for trigram probability estimation. Add-One smoothing is the case where $\alpha$ is set to one, and so Equation \ref{AA} would simply reduce to Equation \ref{A1}, which still fits within our hypothesis.
+\begin{equation}\label{A1}
+ \dfrac{{count(c_{1},c_{2},c_{3})} + \alpha} {\sum count(c_1,c_2)+ \alpha * |V|} = \dfrac{{count(c_{1},c_{2},c_{3})} + 1} {\sum count(c_1,c_2)+ 1 * |V|}  = \dfrac{{count(c_{1},c_{2},c_{3})} + 1} {\sum count(c_1,c_2)+  |V|}
+\end{equation}
+\section{Trigram Character Language Model - Question 3}
+This section contains a description of how trigrams probabilities were collected and estimated, along with an excerpt obtained from the generated language model.
+\subsection{Trigram Probability Estimation Method}
+The process followed to count and collect raw trigram probabilities is provided below:
+\begin{enumerate}
+\item Each trigram appearing within the input document is counted and stored within a Python dictionary.  As discussed in Section \ref{PreProc}, an input document is first pre-processed line-by-line before counting occurs.  `\#'s are added at the beginning and end of sentences, in order to signify the start/end of a sequence.  Thus, characters at the beginning of sentences will have a `\#\#' or `\#\_' as their input bigrams.
+\item Alongside trigram collection, the bigram count for each two character sequence in the training document is also counted. This is also stored in another Python dictionary.
+\item Maximum Likelihood Estimation (MLE) i.e. Equation \ref{triprobs}, is the easiest way to determine trigram probabilities at this point.
+\begin{equation}\label{triprobs}
+P_{MLE}(c_{1},c_{2},c_{3}|c_{1},c_{2})= \dfrac{count(c_{1},c_{2},c_{3})}{count(c_1,c_2)} 
+\end{equation}
+$c_1,c_2,c_3$  refer to the first, second and third character in the trigram sequence.\\
+\hfill\break
+However, this method would have overfit the input text, and left many trigrams with a probability of zero, causing problems when using the model later on.  Thus, smoothing was used in preference to direct MLE.  Thus, Add-One smoothing is applied as the smoothing of choice (see Section \ref{assum}) to the data to calculate trigram probabilities.  The equation for this type of smoothing has been described in Equation \ref{A1}, but has also been reproduced below in Equation \ref{A2}.
+\begin{equation}\label{A2}
+ P_{+1}(c_{1},c_{2},c_{3} | c_{1},c_{2})= \dfrac{{count(c_{1},c_{2},c_{3})} + 1} {\sum count(c_1,c_2)+  |V|}
+\end{equation}
+In this case: $c_1,c_2,c_3 \in \{\ ,.,0,\#,a,b,c,d,e,f,g,h,i,k,l,m,n,o,p,q,r, s,t,u,v,w,x,y,z\}$ and so $|V|$ = 30 in most cases (special cases described in Section \ref{assum}).
+\item  These probabilities are all stored within another dictionary, allowing for quick access when required for use.  The total probability of all trigrams with the same input bigram all sum up to 1.
+\end{enumerate} 
+\subsection{Assumptions and Special Cases}\label{assum}
+A number of special cases/assumptions have been observed/made:
+\begin{itemize}
+	\item The trigram `\#\#\#' can never occur.  Thus, this trigram is never generated or even given a probability value.  For calculating all other trigram probabilities with an input bigram of `\#\#', the vocabulary size $|V|$ is now 29, since one case has been omitted completely.
+	\item No trigram with the form `\_\#\_' can exist, since a `\#' can never occur in isolation between two other non-hash characters.  All trigrams with this form are omitted from our model.
+	\item Add-One smoothing has been used, based on the results obtain for Question 5.  Other smoothing methods have been tried, resulting in similar perplexity values.  Thus, Add-One has been kept, in an attempt to keep complexity low whilst still producing good results.
+	\item  One-character sequences are allowed due to the inclusion of such sequences in the Spanish training file.
+\end{itemize}
+\subsection{N-grams with Two Character History `ng' from English Model}
+\subsubsection{Expectations}
+It is expected that the summation of all the probabilities of n-grams with two character history `ng' will be equal to 1. The third character following this bigram can be one of $\{ \ ,.,0,\#,a,b,c,d,e,f,g,h,i,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z\}$.  Such a situation has been enforced by the preprocessing system implemented.  It is also expected that the trigrams `ng ' will have the highest probability due to the high prominence of words in the English language ending with `ng' such as `running',`fighting',`eating' etc.   
 \subsubsection{Results}
-The results are tabulated in Table 1.
+The actual results from the English model are tabulated in Table \ref{ngT}.
 \begin{center}
 	
-	\begin{longtable}{ | p{5em} | p{6.5em} | } 
-	\caption{n-grams and their probability with the two-character history `ng'}\\ 
+	\begin{longtable}{ | C{5em} | C{6.5em} | } 
+	
+	\caption{N-grams and their probability with the two-character history `ng'} 	\label{ngT}\\ 
 	
 	\hline
-	\centering \textbf{n-gram }& \textbf{Probability \space\space {\scriptsize (4 decimal places)}} \\ 
+	 \textbf{N-gram }& \textbf{Probability \space\space {\scriptsize (5 decimal places)}} \\ 
 	\hline
-	\centering ng  &  0.78742 \\ 
+	 ng$\ $  &  0.78742 \\ 
 	\hline
-	\centering ng.&   0.02642\\ 
-	\hline
-	
-	\hline
-	\centering ng0  &   0.00126\\
-	\hline
-	
-	\hline
-	\centering ng\#   &  0.00252\\
+	 ng.&   0.02642\\ 
+	\hline	
+	 ng0  &   0.00126\\
 	\hline
 	
 	\hline
-	\centering nga   &  0.00377\\
+	 ng\#   &  0.00252\\
 	\hline
 	
 	\hline
-	\centering ngb   &  0.00126\\
+	 nga   &  0.00377\\
 	\hline
 	
 	\hline
-	\centering ngc   &  0.00126\\
+	 ngb   &  0.00126\\
 	\hline
 	
 	\hline
-	\centering ngd   &  0.00503\\
-	\hline
-	
-	
-	\hline
-	\centering nge   &  0.08553\\
+	 ngc   &  0.00126\\
 	\hline
 	
 	\hline
-	\centering ngf    & 0.00252\\
+	 ngd   &  0.00503\\
 	\hline
 	
 	
 	\hline
-	\centering ngg   &  0.00126\\
+	 nge   &  0.08553\\
+	\hline
+	
+	\hline
+	 ngf    & 0.00252\\
 	\hline
 	
 	
 	\hline
-	\centering ngh   &  0.00126\\
-	\hline
-	
-	\hline
-	\centering ngi    & 0.00252\\
-	\hline
-	
-	\hline
-	\centering ngj    & 0.00126\\
-	\hline
-	
-	\hline
-	\centering ngk   &  0.00126\\
-	\hline
-	
-	\hline
-	\centering ngl    & 0.00377\\
-	\hline
-	
-	\hline
-	\centering ngm  &   0.00126\\
+	 ngg   &  0.00126\\
 	\hline
 	
 	
 	\hline
-	\centering ngn   &  0.00252\\
+	 ngh   &  0.00126\\
+	\hline
+	
+	\hline
+	 ngi    & 0.00252\\
+	\hline
+	
+	\hline
+	 ngj    & 0.00126\\
+	\hline
+	
+	\hline
+	 ngk   &  0.00126\\
+	\hline
+	
+	\hline
+	 ngl    & 0.00377\\
+	\hline
+	
+	\hline
+	 ngm  &   0.00126\\
 	\hline
 	
 	
 	\hline
-	\centering ngo   &  0.00751\\
+	 ngn   &  0.00252\\
 	\hline
 	
 	
 	\hline
-	\centering ngp   &  0.00126\\
-	\hline
-	
-	\hline
-	\centering ngq   &  0.00126\\
-	\hline
-	
-	\hline
-	\centering ngr    & 0.01258\\
-	\hline
-	
-	\hline
-	\centering ngs   &  0.02138\\
-	\hline
-	
-	\hline
-	\centering ngt    & 0.01384\\
-	\hline
-	
-	\hline
-	\centering ngu    & 0.00377\\
+	 ngo   &  0.00751\\
 	\hline
 	
 	
 	\hline
-	\centering ngv     & 0.00126\\
+	 ngp   &  0.00126\\
 	\hline
 	
 	\hline
-	\centering ngw    & 0.00126\\
+	 ngq   &  0.00126\\
+	\hline
+	
+	\hline
+	 ngr    & 0.01258\\
+	\hline
+	
+	\hline
+	 ngs   &  0.02138\\
+	\hline
+	
+	\hline
+	 ngt    & 0.01384\\
+	\hline
+	
+	\hline
+	 ngu    & 0.00377\\
 	\hline
 	
 	
 	\hline
-	\centering ngx    & 0.00126\\
+	 ngv     & 0.00126\\
 	\hline
 	
 	\hline
-	\centering ngy    & 0.00126\\
+	 ngw    & 0.00126\\
+	\hline
+	
+	
+	\hline
+	 ngx    & 0.00126\\
 	\hline
 	
 	\hline
-	\centering ngz    & 0.00126\\
+	 ngy    & 0.00126\\
 	\hline
 	
 	\hline
-	\centering \textbf{Summation}   &  \textbf{1.0000}\\
+	 ngz    & 0.00126\\
+	\hline
+	
+	\hline
+	 \textbf{Summation}   &  \textbf{1.0000}\\
 	\hline
 \end{longtable}
 \end{center}
-
-\subsubsection{Conclusion}
-The results match the expectation because the summation of all the probabilities determined empirically as shown in Table 1, equals one. This is in-line with the theoretical expectation stated stated in section 4.3.1 
-
+The results are clearly in line with our expectations.  The `ng ' has the highest probability from all the trigrams, and altogether, the whole range has a probability of 1.
 \section{Random Sequence Generation - Question 4}
 Random generation from the the trigram model is a `raw' application of the model, where the model's probabilities are translated directly into text.  This output should represent the type of text the model is trained on, and will  take on the features represented within the model's training source.  This section provides a brief analysis of how random generation is carried out on the model, and discusses the differences between the outputs of the given model and the model estimated on the English training data.
 \subsection{Random Generation Algorithm}
