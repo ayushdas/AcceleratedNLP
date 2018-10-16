@@ -156,6 +156,30 @@ A sample input/output pair from the preprocessing function is provided below:\\
 Sample Input: Reanudación del período de sesiones\\
 Sample Output: \#reanudacin del perodo de sesiones\#
 \section{Determining the Given Model's Estimation Method - Question 2} 
+The language model probabilities file contains the trigram followed by the probability of the trigram conditioned on the occurrence of the first two characters in the trigram. To make an assessment of the kind of estimation method used, consider trigrams beginning with zz. 'zz' is chosen because in English there are seldom any words that have a zz followed by a character. Hence the the probabilities of such trigrams should be low and similar. On examining the trigram probabilities beginning with `zz', it is observed that all such trigrams have a probability of  
+$3.333 * 10^{-2}$.\\
+Assuming the model has been smoothed using add alpha method. The formula for add alpha smoothing is :
+\begin{equation}
+ \dfrac{{count(c_{1}\ c_{2}\ c_{3})} + \alpha} {\sum count(c_1\ c_2)+ \alpha * |V|} 
+\end{equation}\\  
+$(c_1,c_2,c_3)$ refer to the first, second and third characters respectively in the trigram and $|V|$ is the size of the vocabulary.\\
+When the count ($(c_1,c_2,c_3)$) = 0 and count ($(c_1,c_2,)$) = 0, equation 1 reduces to:
+\begin{equation}
+\dfrac{1} {|V|} 
+\end{equation}\\  
+In this case $|V|$ = 30 because $|V|$ is the size of the character set $ \in \{  \space ,.,0,\#,a,b,c,d,e,f,g,h,i,\\k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z\}$, hence
+\begin{equation}
+\dfrac{1} {|V|}  = \dfrac{1} {30} = 3.33 * 10^{-2}
+\end{equation}\\
+Hence we can conclude that either add one or add alpha smoothing technique has been applies for the estimation. Consider another set of trigrams beginning with `zy' . We have $p(zy\space| zy) = p(zy. | zy)$ = $3 * 10^{-1}$ and all other trigrams beginning with `zy' have a probability of $1.429 * 10^{-2}$. For instance, assuming that the count of zya = 0, equation 1 reduces to  
+\begin{equation}
+\dfrac{ \alpha} {\sum count(zy)+ \alpha * 30} = 1.429 * 10^{-2}
+\end{equation}\\
+This equation has two unknowns  $\alpha$ and $\sum count(zy)$.
+The count(zy ) or count(zy.) is not known. Hence we cannot exactly determine the value of $\alpha$ mathematically. However, we can conclude with certainty that  either add alpha or add one smoothing technique has been applied. The reason add one is also a possibility is due to the reason that when we replace the value of $\alpha$ with 1 the add alpha smoothing equation reduces to a add one smoothing equation.
+\begin{equation}
+ \dfrac{{count(c_{1}\ c_{2}\ c_{3})} + \alpha} {\sum count(c_1\ c_2)+ \alpha * |V|} = \dfrac{{count(c_{1}\ c_{2}\ c_{3})} + 1} {\sum count(c_1\ c_2)+ 1 * |V|}  = \dfrac{{count(c_{1}\ c_{2}\ c_{3})} + 1} {\sum count(c_1\ c_2)+  |V|}
+\end{equation}\\  
 \section{Trigram Character Language Model - Question 3}
 \subsection{Method used to estimate the probabilities of the trigram}
 1. Collected the trigram counts for each of the three character sequence in the training document. This was stored in a python dictionary called tri\_counts.\\
@@ -171,148 +195,150 @@ We have extended our model to be able estimate the probabilities of unseen trigr
 
 \subsection{n-grams with two character history `ng'}
 \subsubsection{Expectation}
-It is expected that the summation of all the probabilities of n-grams with two character history `ng' will be equal to 1. This is because in a trigram starting with ng the next character has to be a character $\in \{ ,.,0,\#,a,b,c,d,e,f,g,h,i,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z\}. $This is because the data set has been preprocessed to only have these characters. Hence, when we sum all the probabilities of trigrams beginning with 'ng' conditioned on the occurrence of 'ng', the summation is bound to equal 1.  
+It is expected that the summation of all the probabilities of n-grams with two character history `ng' will be equal to 1. This is because in a trigram starting with ng the next character has to be a character $\in \{ ,.,0,\#,a,b,c,d,e,f,g,h,i,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z\}. $This is because the data set has been preprocessed to only have these characters. Hence, when we sum all the probabilities of trigrams beginning with 'ng' conditioned on the occurrence of 'ng', the summation is bound to equal 1.  \\
 \subsubsection{Results}
+The results are tabulated in Table 1.
 \begin{center}
 	
-	\begin{longtable}{ | m{10em} | m{10em} | } 
-		\caption{n-grams and their probability with the two-character history `ng'}\\ 
-		\hline
-		n-gram & Probability  \\ 
-		\hline
-		ng   & 0.7874213836477988 \\ 
-		\hline
-		ng.   &   0.026415094339622643\\ 
-		\hline
-		
-		\hline
-		ng0  &   0.0012578616352201257\\
-		\hline
-		
-		\hline
-		ng\#   &  0.0025157232704402514\\
-		\hline
-		
-		\hline
-		nga   &  0.0037735849056603774\\
-		\hline
-		
-		\hline
-		ngb   &  0.0012578616352201257\\
-		\hline
-		
-		\hline
-		ngc   &  0.0012578616352201257\\
-		\hline
-		
-		\hline
-		ngd   &  0.005031446540880503\\
-		\hline
-		
-		
-		\hline
-		nge   &  0.08553459119496855\\
-		\hline
-		
-		\hline
-		ngf    & 0.0025157232704402514\\
-		\hline
-		
-		
-		\hline
-		ngg   &  0.0012578616352201257\\
-		\hline
-		
-		
-		\hline
-		ngh   &  0.0012578616352201257\\
-		\hline
-		
-		\hline
-		ngi    & 0.0025157232704402514\\
-		\hline
-		
-		\hline
-		ngj    & 0.0012578616352201257\\
-		\hline
-		
-		\hline
-		ngk   &  0.0012578616352201257\\
-		\hline
-		
-		\hline
-		ngl    & 0.0037735849056603774\\
-		\hline
-		
-		\hline
-		ngm  &   0.0012578616352201257\\
-		\hline
-		
-		
-		\hline
-		ngn   &  0.0025157232704402514\\
-		\hline
-		
-		
-		\hline
-		ngo   &  0.007547169811320755\\
-		\hline
-		
-		
-		\hline
-		ngp   &  0.0012578616352201257\\
-		\hline
-		
-		\hline
-		ngq   &  0.0012578616352201257\\
-		\hline
-		
-		\hline
-		ngr    & 0.012578616352201259\\
-		\hline
-		
-		\hline
-		ngs   &  0.021383647798742137\\
-		\hline
-		
-		\hline
-		ngt    & 0.013836477987421384\\
-		\hline
-		
-		\hline
-		ngu    & 0.0037735849056603774\\
-		\hline
-		
-		
-		\hline
-		ngv     & 0.0012578616352201257\\
-		\hline
-		
-		\hline
-		ngw    & 0.0012578616352201257\\
-		\hline
-		
-		
-		\hline
-		ngx    & 0.0012578616352201257\\
-		\hline
-		
-		\hline
-		ngy    & 0.0012578616352201257\\
-		\hline
-		
-		\hline
-		ngz    & 0.0012578616352201257\\
-		\hline
-		
-		\hline
-		Summation of all the probabilities   &  1.0\\
-		\hline
-	\end{longtable}
+	\begin{longtable}{ | p{5em} | p{6.5em} | } 
+	\caption{n-grams and their probability with the two-character history `ng'}\\ 
+	
+	\hline
+	\centering \textbf{n-gram }& \textbf{Probability \space\space {\scriptsize (4 decimal places)}} \\ 
+	\hline
+	\centering ng  &  0.78742 \\ 
+	\hline
+	\centering ng.&   0.02642\\ 
+	\hline
+	
+	\hline
+	\centering ng0  &   0.00126\\
+	\hline
+	
+	\hline
+	\centering ng\#   &  0.00252\\
+	\hline
+	
+	\hline
+	\centering nga   &  0.00377\\
+	\hline
+	
+	\hline
+	\centering ngb   &  0.00126\\
+	\hline
+	
+	\hline
+	\centering ngc   &  0.00126\\
+	\hline
+	
+	\hline
+	\centering ngd   &  0.00503\\
+	\hline
+	
+	
+	\hline
+	\centering nge   &  0.08553\\
+	\hline
+	
+	\hline
+	\centering ngf    & 0.00252\\
+	\hline
+	
+	
+	\hline
+	\centering ngg   &  0.00126\\
+	\hline
+	
+	
+	\hline
+	\centering ngh   &  0.00126\\
+	\hline
+	
+	\hline
+	\centering ngi    & 0.00252\\
+	\hline
+	
+	\hline
+	\centering ngj    & 0.00126\\
+	\hline
+	
+	\hline
+	\centering ngk   &  0.00126\\
+	\hline
+	
+	\hline
+	\centering ngl    & 0.00377\\
+	\hline
+	
+	\hline
+	\centering ngm  &   0.00126\\
+	\hline
+	
+	
+	\hline
+	\centering ngn   &  0.00252\\
+	\hline
+	
+	
+	\hline
+	\centering ngo   &  0.00751\\
+	\hline
+	
+	
+	\hline
+	\centering ngp   &  0.00126\\
+	\hline
+	
+	\hline
+	\centering ngq   &  0.00126\\
+	\hline
+	
+	\hline
+	\centering ngr    & 0.01258\\
+	\hline
+	
+	\hline
+	\centering ngs   &  0.02138\\
+	\hline
+	
+	\hline
+	\centering ngt    & 0.01384\\
+	\hline
+	
+	\hline
+	\centering ngu    & 0.00377\\
+	\hline
+	
+	
+	\hline
+	\centering ngv     & 0.00126\\
+	\hline
+	
+	\hline
+	\centering ngw    & 0.00126\\
+	\hline
+	
+	
+	\hline
+	\centering ngx    & 0.00126\\
+	\hline
+	
+	\hline
+	\centering ngy    & 0.00126\\
+	\hline
+	
+	\hline
+	\centering ngz    & 0.00126\\
+	\hline
+	
+	\hline
+	\centering \textbf{Summation}   &  \textbf{1.0000}\\
+	\hline
+\end{longtable}
 \end{center}
 
 \subsubsection{Conclusion}
-The results match the expectation.
+The results match the expectation because the summation of all the probabilities determined empirically as shown in Table 1, equals one. This is in-line with the theoretical expectation stated stated in section 4.3.1 
 
 \section{Random Sequence Generation - Question 4}
 Random generation from the the trigram model is a `raw' application of the model, where the model's probabilities are translated directly into text.  This output should represent the type of text the model is trained on, and will  take on the features represented within the model's training source.  This section provides a brief analysis of how random generation is carried out on the model, and discusses the differences between the outputs of the given model and the model estimated on the English training data.
@@ -324,7 +350,7 @@ To actually generate the sequence, the model must select which character to outp
 	\caption{Random selection from a probability distribution}
 	\label{fig:randomgen}
 \end{figure}
-Essentially, each probability in the distribution was put into bins corresponding to their size (as with P1,P2,P3 \& P4 in Figure \ref{fig:randomgen}).  With this setup in place, a random number was generated from the uniform continuous distribution, and the probability bin to which this number corresponded was selected as the next character in the sequence.  This system self-propagates itself; each new character produces a new biagram on which to base the next random generation.  The first bigram was set to always be a `\#' followed by a random character.\\
+Essentially, each probability in the distribution was put into bins corresponding to their size (as with P1,P2,P3 \& P4 in Figure \ref{fig:randomgen}).  With this setup in place, a random number was generated from the uniform continuous distribution, and the probability bin to which this number corresponded was selected as the next character in the sequence.  This system self-propagates itself; each new character produces a new bigram on which to base the next random generation.  The first bigram was set to always be a `\#' followed by a random character.\\
 \hfill\break
 Whenever a `\#' is generated, this signifies a line break (as explained in the answer to Question 1).  Thus, the system was set to automatically add another `\#' when this occurs, signifying both the end of a line and the start of a new one.  The next output character in the sequence will then be based on a `\#\#' bigram.  This system works for both the Europarl and given model.  The extra `\#' is of course not included in the count of random characters.\\
 \hfill\break
