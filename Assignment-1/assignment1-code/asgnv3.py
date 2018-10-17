@@ -837,10 +837,10 @@ def plot_datastore():
 if __name__ == '__main__':
 
     # main questions handler
-    # main_routine()
+    main_routine()
 
     # Additional functions providing further analysis or batch-runs (in development)
-    plot_datastore()
+    # plot_datastore()
     # alpha_checker()
     # interp_checker()
     # document_classifier()
