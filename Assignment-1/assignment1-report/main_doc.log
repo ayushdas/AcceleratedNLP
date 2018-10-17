@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.10.23)  16 OCT 2018 14:37
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.10.23)  17 OCT 2018 03:33
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -895,7 +895,7 @@ Package gensymb Info: Using \Omega for \ohm on input line 95.
 Package gensymb Warning: Not defining \micro.
 
 
-<"./graphics/avatar-roundel-blackonwhite".png, id=100, 246.6816pt x 246.6816pt>
+<"./graphics/avatar-roundel-blackonwhite".png, id=124, 246.6816pt x 246.6816pt>
 File: "./graphics/avatar-roundel-blackonwhite".png Graphic file (type png)
 <use "./graphics/avatar-roundel-blackonwhite".png>
 Package pdftex.def Info: "./graphics/avatar-roundel-blackonwhite".png used on i
@@ -992,27 +992,37 @@ Underfull \hbox (badness 10000) in paragraph at lines 157--161
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 162--166
+Underfull \hbox (badness 10000) in paragraph at lines 162--165
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 168--172
+Underfull \hbox (badness 10000) in paragraph at lines 167--171
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 179--182
+Underfull \hbox (badness 10000) in paragraph at lines 178--181
 
  []
 
 [3]
-Underfull \hbox (badness 10000) in paragraph at lines 198--202
+Underfull \hbox (badness 10000) in paragraph at lines 183--188
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 183--188
 
  []
 
 [4]
-Overfull \hbox (12.93832pt too wide) in paragraph at lines 204--206
+Underfull \hbox (badness 10000) in paragraph at lines 203--207
+
+ []
+
+
+Overfull \hbox (12.93832pt too wide) in paragraph at lines 209--211
 \OT1/lmr/m/n/12 In this case: $\OML/lmm/m/it/12 c[]; c[]; c[] \OMS/lmsy/m/n/12 
 2 f \OML/lmm/m/it/12 ; :; \OT1/lmr/m/n/12 0\OML/lmm/m/it/12 ; \OT1/lmr/m/n/12 #
 \OML/lmm/m/it/12 ; a; b; c; d; e; f; g; h; i; k; l; m; n; o; p; q; r; s; t; u; 
@@ -1020,84 +1030,162 @@ v; w; x; y; z\OMS/lmsy/m/n/12 g$
  []
 
 
-Overfull \hbox (0.28629pt too wide) in paragraph at lines 216--216
+Overfull \hbox (0.28629pt too wide) in paragraph at lines 221--221
 []\OT1/lmr/bx/n/14.4 N-grams with Two Char-ac-ter His-tory `ng' from En-glish M
 odel 
  []
 
 [5]
-Overfull \hbox (8.59666pt too wide) in paragraph at lines 354--354
+Overfull \hbox (8.59666pt too wide) in paragraph at lines 357--357
  []|\OT1/lmr/bx/n/12 Summation| 
  []
 
-[6] <graphics/Random_Gen.pdf, id=218, 601.37074pt x 279.70618pt>
+[6] [7] <graphics/Random_Gen.pdf, id=253, 601.37074pt x 279.70618pt>
 File: graphics/Random_Gen.pdf Graphic file (type pdf)
 
 <use graphics/Random_Gen.pdf>
-Package pdftex.def Info: graphics/Random_Gen.pdf used on input line 365.
+Package pdftex.def Info: graphics/Random_Gen.pdf used on input line 369.
 (pdftex.def)             Requested size: 326.63622pt x 151.9268pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 369--374
+Underfull \hbox (badness 10000) in paragraph at lines 373--378
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 369--374
+Underfull \hbox (badness 10000) in paragraph at lines 373--378
 
  []
 
-[7 <./graphics/Random_Gen.pdf>]
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
-put line 377.
-
-Underfull \hbox (badness 10000) in paragraph at lines 411--412
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 413--442
+put line 381.
+[8 <./graphics/Random_Gen.pdf>]
+Underfull \hbox (badness 10000) in paragraph at lines 415--416
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 413--442
+Underfull \hbox (badness 10000) in paragraph at lines 417--446
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 413--442
-
- []
-
-[8] [9] [10]
-Underfull \hbox (badness 10000) in paragraph at lines 502--507
+Underfull \hbox (badness 10000) in paragraph at lines 417--446
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 502--507
+Underfull \hbox (badness 10000) in paragraph at lines 417--446
+
+ []
+
+[9] [10]
+Underfull \hbox (badness 10000) in paragraph at lines 460--464
 
  []
 
 [11]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 518.
- [12]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 518.
+Underfull \hbox (badness 10000) in paragraph at lines 510--515
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 510--515
+
+ []
+
+[12] <graphics/alpha_changes_English.png, id=321, 409.48183pt x 312.64001pt>
+File: graphics/alpha_changes_English.png Graphic file (type png)
+
+<use graphics/alpha_changes_English.png>
+Package pdftex.def Info: graphics/alpha_changes_English.png used on input line 
+525.
+(pdftex.def)             Requested size: 326.63622pt x 249.392pt.
+
+<graphics/alpha_changes_German.png, id=323, 415.11888pt x 312.2064pt>
+File: graphics/alpha_changes_German.png Graphic file (type png)
+
+<use graphics/alpha_changes_German.png>
+Package pdftex.def Info: graphics/alpha_changes_German.png used on input line 5
+31.
+(pdftex.def)             Requested size: 326.63622pt x 245.67328pt.
+
+<graphics/alpha_changes_Span.png, id=324, 407.89188pt x 307.00296pt>
+File: graphics/alpha_changes_Span.png Graphic file (type png)
+
+<use graphics/alpha_changes_Span.png>
+Package pdftex.def Info: graphics/alpha_changes_Span.png used on input line 537
+.
+(pdftex.def)             Requested size: 326.63622pt x 245.85097pt.
+ [13 <./graphics/alpha_changes_English.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 541--544
+
+ []
+
+[14 <./graphics/alpha_changes_German.png> <./graphics/alpha_changes_Span.png>]
+<graphics/interp_changes_English.png, id=340, 410.05998pt x 314.08542pt>
+File: graphics/interp_changes_English.png Graphic file (type png)
+
+<use graphics/interp_changes_English.png>
+Package pdftex.def Info: graphics/interp_changes_English.png used on input line
+ 550.
+(pdftex.def)             Requested size: 326.63622pt x 250.19994pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 545--553
+
+ []
+
+[15 <./graphics/interp_changes_English.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 561--564
+
+ []
+
+<graphics/authors_per.png, id=349, 410.20451pt x 308.15929pt>
+File: graphics/authors_per.png Graphic file (type png)
+
+<use graphics/authors_per.png>
+Package pdftex.def Info: graphics/authors_per.png used on input line 580.
+(pdftex.def)             Requested size: 373.30159pt x 280.44418pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 575--583
+
+ []
+
+[16]
+Underfull \hbox (badness 10000) in paragraph at lines 584--587
+
+ []
+
+<graphics/authors_vs_friends.png, id=358, 406.01286pt x 312.78456pt>
+File: graphics/authors_vs_friends.png Graphic file (type png)
+
+<use graphics/authors_vs_friends.png>
+Package pdftex.def Info: graphics/authors_vs_friends.png used on input line 590
+.
+(pdftex.def)             Requested size: 373.30159pt x 287.58868pt.
+ [17 <./graphics/authors_per.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 595--598
+
+ []
+
+[18 <./graphics/authors_vs_friends.png>]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 609.
+ [19]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 609.
  (./main_doc.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 518.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 518.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 609.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 609.
 Package rerunfilecheck Info: File `main_doc.out' has not changed.
-(rerunfilecheck)             Checksum: ECAF317ECBDB1030AE91C2A5E80D6F24;1738.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 518.
+(rerunfilecheck)             Checksum: 70EB4B19F18E5A4009D18ED4FA383F9C;2202.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 609.
  ) 
 Here is how much of TeX's memory you used:
- 10757 strings out of 493014
- 155906 string characters out of 6133350
- 277871 words of memory out of 5000000
- 14053 multiletter control sequences out of 15000+600000
+ 10824 strings out of 493014
+ 157477 string characters out of 6133350
+ 275603 words of memory out of 5000000
+ 14093 multiletter control sequences out of 15000+600000
  51878 words of font info for 39 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 42i,12n,49p,792b,1559s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 42i,12n,49p,830b,1559s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2016/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/lo
 cal/texlive/2016/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{/usr/local/texlive/20
 16/texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}{/usr/local/texlive/2016/texmf-d
@@ -1118,10 +1206,10 @@ texmf-dist/fonts/type1/public/lm/lmri12.pfb></usr/local/texlive/2016/texmf-dist
 e1/public/lm/lmsy8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/t
 xfonts/t1xbtt.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/txfont
 s/t1xtt.pfb>
-Output written on main_doc.pdf (13 pages, 364994 bytes).
+Output written on main_doc.pdf (20 pages, 2050319 bytes).
 PDF statistics:
- 366 PDF objects out of 1000 (max. 8388607)
- 324 compressed objects within 4 object streams
- 79 named destinations out of 1000 (max. 500000)
- 203 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 459 PDF objects out of 1000 (max. 8388607)
+ 398 compressed objects within 4 object streams
+ 100 named destinations out of 1000 (max. 500000)
+ 281 words of extra memory for PDF output out of 10000 (max. 10000000)
 

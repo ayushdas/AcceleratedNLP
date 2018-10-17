@@ -9,12 +9,9 @@ import linecache
 import numpy as np
 import time
 import matplotlib.pyplot as plt
+from tqdm import tqdm, trange
 
-
-
-uni_counts = defaultdict(int)
-total_count = defaultdict(int)
-# Check for English Character
+# Check for English Characters
 def isEngAlpha(character):
     if (character >= 'a' and character <= 'z'):
         return True
@@ -97,6 +94,36 @@ def testing_routine(line_num,infile):
     
     return find_bi_tri_grams(processed_line)
      
+def find_uni_bi_tri_grams(corp):
+    # generates all bigrams and trigrams from given corpus
+    tri_counts=defaultdict(int) #counts of all trigrams 
+    bi_counts=defaultdict(int) #counts of all bigrams 
+    uni_counts = defaultdict(int)
+    total = 0
+    for j in range(len(corp)-(2)):
+        trigram = corp[j:j+3]
+        tri_counts[trigram] += 1
+        bigram = corp[j:j+2]
+        bi_counts[bigram] += 1
+    final_bigram = corp[len(corp)-2:]
+    bi_counts[final_bigram] +=1
+
+
+    for j in range(len(corp)): # extra code for unigram interpolation
+        unigram = corp[j]
+        uni_counts[unigram] += 1
+        total += 1
+
+    return bi_counts,tri_counts,uni_counts,total
+
+def complete_model_with_uni(infile):
+    with open(infile) as f:
+        total_input = ''
+        for line in f:
+                if len(line) > 2:
+                    processed_line = preprocess_line(line) 
+                    total_input = total_input + processed_line #concatenates corpus together
+        return find_uni_bi_tri_grams(total_input)
 def complete_model(infile):
     with open(infile) as f:
         total_input = ''
@@ -105,7 +132,6 @@ def complete_model(infile):
                     processed_line = preprocess_line(line) 
                     total_input = total_input + processed_line #concatenates corpus together
         return find_bi_tri_grams(total_input)
-
 def bigram_viewer(alpha,num,infile,bi_counts):
     if alpha:
         print("Bigram counts in ", infile, ", sorted alphabetically:")
@@ -278,7 +304,7 @@ def create_smoothing_add_one(bi_counts,tri_counts,valid_char_list):
 
     V = len(valid_char_list) 
     for trigram in all_possible_trigrams:
-        if trigram == '###': #takes care of special V case
+        if trigram[0:2] == '##': #takes care of special V case
             V_act = V-1
         else:
             V_act = V
@@ -305,7 +331,7 @@ def create_smoothing_add_alpha(alpha,bi_counts,tri_counts,valid_char_list):
 
     V = len(valid_char_list) 
     for trigram in all_possible_trigrams:
-        if trigram == '###': 
+        if trigram[0:2] == '##': 
             V_act = V-1 # takes care of special V case
         else:
             V_act = V
@@ -314,7 +340,7 @@ def create_smoothing_add_alpha(alpha,bi_counts,tri_counts,valid_char_list):
     return  smoothed_model
 
 ## Interpolation Smoothing
-def create_smoothing_by_interpolation(bi_counts,tri_counts,valid_char_list):
+def create_smoothing_by_interpolation(bi_counts,tri_counts,valid_char_list,uni_counts,total,l1,l2,l3):
     print('Applying interpolation smoothing to the values')
     smoothed_model = defaultdict(int)
     all_possible_trigrams = []
@@ -326,22 +352,38 @@ def create_smoothing_by_interpolation(bi_counts,tri_counts,valid_char_list):
                     continue # can never be 3#s one after the other
                 if char2=='#' and char1 != '#':
                     continue # can never be a # stuck between two other characters
-                if (char1 == '#' and char3 == '#'):
-                        continue # cannot have #a#, too short a sentence 
                 all_possible_trigrams.append(char1+char2+char3)
-
+    V = len(valid_char_list) 
+    # V_act = V
+    # total_t = 0
+    # total_b = 0
+    # total_c = 0
     for trigram in all_possible_trigrams:
         trigram_value = 0
         bigram_value = 0
         unigram_value = 0
-        if(bi_counts[trigram[0:2]] > 0):
-            trigram_value = (tri_counts[trigram]) / (bi_counts[trigram[0:2]])
-        if(uni_counts[trigram[0]] > 0):
-            bigram_value = (bi_counts[trigram[0:2]]) / (uni_counts[trigram[0]])
-        if(total_count['total'] > 0):
-            unigram_value = uni_counts[trigram[0]] / total_count['total']      
-        smoothed_model[trigram] = (0.6 * trigram_value) + (0.3 * bigram_value) + (0.1 * unigram_value)
-
+        # meas = False
+        if trigram[0:2] == '##': 
+            V_act = V-1# takes care of special V case
+            V_act_b = V - (bi_counts['##']+1)
+            total_act = total - uni_counts['#']
+            meas = True
+        else:
+            V_act = V
+            total_act = total
+            V_act_b = V
+        # interpolation of smoothed values due to incomplete distributions
+        trigram_value = (tri_counts[trigram] + 1) / (bi_counts[trigram[0:2]] + (1 * V_act))  
+        bigram_value = (bi_counts[trigram[1:]] + 1) / (uni_counts[trigram[1]] + V_act_b)
+        unigram_value = uni_counts[trigram[-1]] / total_act      
+        # if meas:
+        #     total_t += trigram_value
+        #     total_b += bigram_value
+        #     total_c += unigram_value
+        smoothed_model[trigram] = (l1 * trigram_value) + (l2 * bigram_value) + (l3 * unigram_value)
+    # print (total_t)
+    # print (total_b)
+    # print (total_c)
     print ('Interpolation smoothing completed')
     return smoothed_model
 
@@ -365,30 +407,35 @@ def model_checker(model,valid_char_list):
         # print (sum(distribution))
 
 def main_routine():
-
+    # answers question 1 - 5 completely
     # Parameter selection
     debugger = True # select when filepath is non-dynamic
     testing = False # select when modelling only specific line of an input file
-    modelling = True # select when running program only to test perplexity of a test doc
+    modelling = False # select when running program only to test perplexity of a test doc
     alphabet = False # select whether or not to display all trigrams/bigrams alphabetically
     num = False # select whether or not to display all trigrams/bigrams numerically
     line_num = 119 # line number for pinpointed model testing
     model_lang = 'en'# english(en), german(de) or spanish(es)
+    input_lang = 'en'
     valid_char_list,non_sequence_marker_list = valid_char_generator()# generates all valid characters
-    test_given_model = True #decides which model to test
+    test_given_model = False #decides which model to test
     dummy_modelling = False # choose whether or not to model the dummy example
-    alpha = 0.5
+    alpha = 0.7
+    l1 = 0.8
+    l2 = 0.1
+    l3 = 0.1
 
     # Input files
     test_file = '../assignment1-data/test' # final test data
     test_es = '../assignment1-data/friends_es/test.txt'
     test_de = '../assignment1-data/test_german/test.txt'
     model_file = '../assignment1-models/Empirical_Model_Smoothed_'+model_lang # generated model
+    # model_file = '../assignment1-models/Empirical_Model_Interpolated_en'# generated model
     given_model_file = '../assignment1-models/model-br.en' # given model
     
 
     if debugger:
-        infile =  '../assignment1-data/training.'+model_lang # hard-coded input
+        infile =  '../assignment1-data/training.'+input_lang # hard-coded input
     else:
         infile = terminal_input_filepath() # user-provided input
         model_lang = infile[-2:]
@@ -397,12 +444,12 @@ def main_routine():
         # fast track to computing perplexity of given document
         if test_given_model:
             given_model = read_model_from_file(given_model_file)
-            print ('Perplexity of '+ model_lang + ' file using given model: ' + 
+            print ('Perplexity of '+ input_lang + ' file using given model: ' + 
                 str(perplexity_computation(infile,given_model)))
         else:
             model_in = read_model_from_file(model_file)
-            print ('Perplexity of '+ model_lang + ' file using generated model: ' + 
-                str(perplexity_computation(infile,model_in)))
+            print ('Perplexity of '+ input_lang + ' file using generated model: ' + 
+                str(perplexity_computation(test_es,model_in)))
         
         if dummy_modelling:
             dummy_string = '##abaab#'
@@ -416,18 +463,20 @@ def main_routine():
         else:
             print('Preprocessing and modelling (Question 1 & 3)')
             print('----------------------')
-            bi_counts,tri_counts = complete_model(infile) #counts bi/trigrams from input file
+            # bi_counts,tri_counts = complete_model(infile) #counts bi/trigrams from input file
+            bi_counts,tri_counts,uni_counts,total = complete_model_with_uni(infile) #counts uni/bi/trigrams from input file
+
             print('Preprocessing complete')
             # tri_probs = estimate_probs(bi_counts,tri_counts) #trigram probabilities
             # print ('Trigram Computations Complete')
             # -------Smoothing Done in this section -------
             smoothed_model = create_smoothing_add_one(bi_counts,tri_counts,valid_char_list)
             smoothed_alpha_model = create_smoothing_add_alpha(alpha,bi_counts,tri_counts,valid_char_list)
-            #  smoothed_model = create_smoothing_by_interpolation(bi_counts,tri_counts,valid_char_list)
+            smoothed_inter_model = create_smoothing_by_interpolation(bi_counts,tri_counts,valid_char_list,uni_counts,total,l1,l2,l3)
             # --------Smoothing Section completed -------
             save_model_to_file(smoothed_model,'../assignment1-models/Empirical_Model_Smoothed_' + model_lang)
-            
             save_model_to_file(smoothed_alpha_model,'../assignment1-models/Empirical_Model_Smoothed_'+str(alpha)+'_' + model_lang)
+            save_model_to_file(smoothed_inter_model,'../assignment1-models/Empirical_Model_Interpolated_'+ model_lang)
 
             print ('Model(s) saved to file')
             trigram_with_two_character_history('n','g',smoothed_model)
@@ -436,7 +485,7 @@ def main_routine():
             given_model = read_model_from_file(given_model_file)
             print('Random sequence from generated model:')
             print ('--')
-            sequence = generate_from_LM(300,smoothed_alpha_model,
+            sequence = generate_from_LM(300,smoothed_inter_model,
                         valid_char_list,non_sequence_marker_list)
             sequence = de_process(sequence)
             print (sequence) 
@@ -450,13 +499,13 @@ def main_routine():
             print('Question 5:')
             print('----------------------')
             print ('Perplexity of test file under '+model_lang.upper()+' model: '
-                 +str(perplexity_computation(test_file,smoothed_model)))
+                 +str(perplexity_computation(test_file,smoothed_alpha_model)))
             model_checker(smoothed_alpha_model,valid_char_list)
         bigram_viewer(alphabet,num,infile,bi_counts)
         trigram_viewer(alphabet,num,infile,tri_counts)
 
 def batch_modelling():
- 
+    # function which quickly reads files and computes perplexities
     debugger = True
     test_given_model = False
     # Input files
@@ -485,6 +534,7 @@ def batch_modelling():
     print (np.mean(all_perps))
 
 def plot_histogram(vals,counts):
+    # histogram plotting function
     x_pos = np.arange(len(counts)) 
     barlist = plt.bar(x_pos,counts)
     [barlist[i].set_color('r') for i in range(0,3)]
@@ -498,7 +548,7 @@ def plot_histogram(vals,counts):
     plt.savefig('../assignment1-models/bars.png',dpi = 800)
 
 def random_generate_and_rebuild():
-
+    # flawed function - not to be used
     given_model_file = '../assignment1-models/model-br.en' # given model
     valid_char_list,non_sequence_marker_list = valid_char_generator()# generates all valid characters
 
@@ -537,7 +587,7 @@ def random_generate_and_rebuild():
     save_model_to_file(re_done_model,'../assignment1-models/given_model_repeat')
 
 def language_comparison():
-
+    # an attempt at comparing languages
     # Input files
     model_langs = ['en','es','de']
     alphas = ['0.1','0.5','0.8']
@@ -558,9 +608,248 @@ def language_comparison():
         perps.append(perp)
     plot_histogram(a_labels,perps)
 
+def bulk_perplexity_finder():
+    # works out perplexities for Gutenberg dataset
+ 
+    model_file = '../assignment1-models/Empirical_Model_Smoothed_en'
+
+    infolder =  '../assignment1-data/Gutenberg/'
+ 
+    model_use = read_model_from_file(model_file)
+
+    p = re.compile('^[^_]+(?=_)')
+    filecounter = 0
+    for filepath in os.listdir(infolder):
+        filecounter += 1
+
+    with open('../assignment1-data/DataStore', 'w') as file:
+        for direc in tqdm(os.listdir(infolder), total=filecounter, unit="files"):
+            infile = infolder + direc
+            if os.path.getsize(infile) == 0:
+                continue
+            author = p.match(direc)
+            perp = perplexity_computation(infile,model_use)
+            file.write(str(perp) + '\t'+ author.group(0) + '\n')
+
+def check_bulk_perplexity():
+
+    lim = 50
+    with open('../assignment1-data/DataStore2') as f:
+        in_model = defaultdict(int)
+        in_totals = defaultdict(int)
+        i = 0
+        for line in f:
+            i +=1
+            (perplexity, name) = line.split('\t')
+            in_model[name.rstrip('\n')] += float(perplexity)
+            in_totals[name.rstrip('\n')] +=1
+            if i == lim:
+                break
+        # print (in_totals['George Alfred Henty'])
+            
+        # print("Bigram counts in ", infile, ", sorted alphabetically:")
+        for author in sorted(in_model.keys()):
+            print(author, ": ", in_model[author]/in_totals[author])
+
+def train_singular_model():
+    # directly trains just one model 
+    valid_char_list,non_sequence_marker_list = valid_char_generator()# generates all valid characters
+    p = re.compile('^[^_]+(?=_)')
+    infile = 'Ambrose Bierce___Cobwebs From an Empty Skull.txt'
+    infile_f = 'episode-7.txt'
+
+    author = p.match(infile)
+    bi_counts,tri_counts = complete_model('../assignment1-data/friends/'+infile_f)
+    # bi_counts,tri_counts = complete_model('../assignment1-data/Gutenberg/'+infile)
+
+    smoothed_model = create_smoothing_add_one(bi_counts,tri_counts,valid_char_list)
+    save_model_to_file(smoothed_model,'../assignment1-models/f_model')
+
+    # save_model_to_file(smoothed_model,'../assignment1-models/' +author.group(0) +  ' model')
+
+def compare_authors():
+    # compare author complexities
+    valid_char_list,non_sequence_marker_list = valid_char_generator()
+    infolder =  '../assignment1-data/Gutenberg/'
+    
+    p = re.compile('.+?(?= model)')
+    infile = 'Ambrose Bierce model'
+    author = p.match(infile).group(0)
+    author = 'Mark Twain'
+    model_loc = '../assignment1-models/'+infile
+    # model_loc = '../assignment1-models/model-br.en'
+    model_loc = '../assignment1-models/Empirical_Model_Smoothed_es'
+
+    model = read_model_from_file(model_loc)
+    
+    p2 = re.compile('^[^_]+(?=_)')
+
+    perps = []
+    # for direc in os.listdir(infolder):
+    #     infile = infolder + direc
+    #     if os.path.getsize(infile) == 0:
+    #         continue
+    #     in_author = p2.match(direc)
+    #     # print (in_author.group(0))
+    #     if in_author.group(0) ==  author:
+    #         perp = perplexity_computation(infile,model)
+    #         # print ('Perplexity of ' + in_author.group(0) + ' :' + str(perp))
+
+    infolder =  '../assignment1-data/poetry/'
+    
+    for direc in os.listdir(infolder):
+        infile = infolder + direc
+        if os.path.getsize(infile) == 0:
+            continue
+        perp = perplexity_computation(infile,model)
+        print (perp)
+        perps.append(perp)
+        # print ('Perplexity: ' + str(perp))
+    # plt.hist(perps,1000)
+    # plt.show()
+
+def shear_providence():
+    # an attempt at preprocessing providence dataset
+    infolder =  '../assignment1-data/providence/'
+    for direc in os.listdir(infolder):
+        infile = infolder + direc
+        cut_lines = []
+        with open(infile) as f:
+            for line in f:
+                line = line.replace('*CHI', "")
+                line = line.replace('*MOT', "")
+                line = line.replace('%pho', "")
+                line = line.replace('%sit', "")
+                line = line.replace('%mod', "")
+
+                cut_lines.append(line)
+        with open('../assignment1-data/providence/cut'+direc, 'w') as file:
+                for cut_line in cut_lines:
+                    file.write(cut_line + '\n')
+
+def alpha_checker():
+    # checks out various Add Alpha models and computes perplexities of test documents
+
+    model_langs = ['en','es','de']
+    valid_char_list,non_sequence_marker_list = valid_char_generator()# generates all valid characters
+    alphas = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]
+
+    # Input files
+    test_file = '../assignment1-data/test' # final test data
+    # test_file = '../assignment1-data/friends_es/test.txt'
+    test_file = '../assignment1-data/test_german/test.txt'
+
+    predir = '../assignment1-data/training.'
+    infiles =  [predir+model_langs[0],predir+model_langs[1], predir+model_langs[2]]
+    perplexities = np.zeros((3,9))
+    for a_index,alpha in enumerate(alphas):
+        for index,filez in enumerate(infiles):
+            bi_counts,tri_counts,uni_counts,total = complete_model_with_uni(filez)
+            smoothed_alpha_model = create_smoothing_add_alpha(alpha,bi_counts,tri_counts,valid_char_list)
+            perplex = perplexity_computation(test_file,smoothed_alpha_model)
+            perplexities[index,a_index] = perplex
+            print ('Perplexity of test file under '+model_langs[index].upper()+' model with alpha = '+ str(alpha)+': '
+                    +str(perplex))
+
+
+    print (perplexities)
+    plt.plot(alphas,perplexities[0,:],label = 'English Model Perplexity')
+    plt.plot(alphas,perplexities[1,:],label = 'Spanish Model Perplexity')
+    plt.plot(alphas,perplexities[2,:],label = 'German Model Perplexity')
+    plt.xlabel('Alpha Value')
+    plt.ylabel('German Test Document Perplexity')
+    plt.legend()
+    plt.grid()
+    plt.savefig('../assignment1-models/alpha_changes_German.png',dpi = 500)
+
+def interp_checker():
+    # checks out various interpolation models and computes perplexities of test documents
+    model_langs = ['en','es','de']
+    valid_char_list,non_sequence_marker_list = valid_char_generator()# generates all valid characters
+    lambda_in = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8]
+
+    # Input files
+    test_file = '../assignment1-data/test' # final test data
+    test_file = '../assignment1-data/friends_es/test.txt'
+    # test_file = '../assignment1-data/test_german/test.txt'
+
+    predir = '../assignment1-data/training.'
+    infiles =  [predir+model_langs[0],predir+model_langs[1], predir+model_langs[2]]
+    i = 0
+    for index_m,l1 in enumerate(lambda_in):
+        for l2 in lambda_in[0:len(lambda_in)-index_m]:
+            i +=1
+    perplexities = np.zeros((3,i))
+    i = 0
+    for index_m,l1 in enumerate(lambda_in):
+        for l2 in lambda_in[0:len(lambda_in)-index_m]:
+            l3 = 1 - (l1 + l2)
+            for index,filez in enumerate(infiles):
+                bi_counts,tri_counts,uni_counts,total = complete_model_with_uni(filez)
+                smoothed_inter_model = create_smoothing_by_interpolation(bi_counts,tri_counts,valid_char_list,uni_counts,total,l1,l2,l3)
+                perplex = perplexity_computation(test_file,smoothed_inter_model)
+                perplexities[index,i] = perplex 
+            i +=1
+            print (l1,l2,l3)
+
+    print (perplexities)
+    plt.plot(perplexities[0,:],label = 'English Model Perplexity')
+    plt.plot(perplexities[1,:],label = 'Spanish Model Perplexity')
+    plt.plot(perplexities[2,:],label = 'German Model Perplexity')
+    plt.xlabel('Iteration')
+    plt.ylabel('Spanish Test Document Perplexity')
+    plt.legend()
+    plt.grid()
+    # plt.show()
+    plt.savefig('../assignment1-models/interp_changes_Spanish.png',dpi = 500)
+
+def plot_datastore():
+    with open('../assignment1-data/Datastore') as f:
+        
+        in_model = defaultdict(int)
+        in_totals = defaultdict(int)
+        model_file = '../assignment1-models/Empirical_Model_Smoothed_en' 
+        model_use = read_model_from_file(model_file)
+
+        for line in f:
+            (perplexity, name) = line.split('\t')
+            in_model[name.rstrip('\n')] += float(perplexity)
+            in_totals[name.rstrip('\n')] +=1
+        
+        means = []
+        perps_f = []
+        for author in sorted(in_model.keys()):
+            means.append(in_model[author]/in_totals[author])
+
+        for direc in os.listdir('../assignment1-data/friends/'):
+            infile = '../assignment1-data/friends/' + direc
+            if os.path.getsize(infile) == 0:
+                continue
+            perp = perplexity_computation(infile,model_use)
+            perps_f.append(perp)
+        plt.plot(means, label = 'Gutenberg Authors')
+        plt.plot(perps_f, label = 'Drama Episodes')
+        plt.legend()
+        plt.xlabel('Various Authors/Drama Episodes')
+        plt.ylabel('Document Perplexity')
+        plt.savefig('../assignment1-models/authors_vs_friends.png',dpi = 500)
+
 if __name__ == '__main__':
-    main_routine()
+
+    # main questions handler
+    # main_routine()
+
+    # Additional functions providing further analysis or batch-runs (in development)
+    plot_datastore()
+    # alpha_checker()
+    # interp_checker()
+    # document_classifier()
+    # bulk_perplexity_finder()
+    # check_bulk_perplexity()
     # batch_modelling()
     # language_comparison()
+    # train_singular_model()
+    # shear_providence()
+    # compare_authors()
     # random_generate_and_rebuild()
-# number of N grams required until coherence is achieved?
+
