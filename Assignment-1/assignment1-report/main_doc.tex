@@ -551,7 +551,7 @@ Thus, an interpolation scheme was built to use data from an Add-One smoothed tri
 	\caption{Perplexity results for different interpolation parameters}
 	\label{fig:interpchangesenglish}
 \end{figure}
-Unfortunately, as can be seen from the graph, the results of this method are worse for every combination of the three models (the same result has been obtained for the other test documents).  It seems that mixing-in information from lower models in this case results in higher perplexities for the correct language model and lower perplexities for the incorrect language models.  It is clear that this method of estimation suffers when faced with a very sparse dataset.
+Unfortunately, as can be seen from the graph, the results of this method are worse for every combination of the three models (the same result has been obtained for the other test documents).  It seems that mixing-in information from lower models in this case results in perplexities which are less spaced out between the different language models.  It is clear that this method of estimation suffers when faced with a very sparse dataset.  Additionally, interpolation is probably not meant to be used with smoothed models.
 
 \subsubsection{Other Estimation Methods}
 Whilst other more complicated estimation methods exist such as Good-Turing or Kneser-Ney, it would seem unlikely that they would aid much in this situation.  Both would suffer from the fact that there are some uniformly-unseen trigrams (such as `zz\_') which offer no context for other estimation methods to attempt a more accurate estimation.
