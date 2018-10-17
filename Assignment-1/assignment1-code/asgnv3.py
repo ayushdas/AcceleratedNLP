@@ -409,7 +409,7 @@ def model_checker(model,valid_char_list):
 def main_routine():
     # answers question 1 - 5 completely
     # Parameter selection
-    debugger = True # select when filepath is non-dynamic
+    debugger = False # select when filepath is non-dynamic
     testing = False # select when modelling only specific line of an input file
     modelling = False # select when running program only to test perplexity of a test doc
     alphabet = False # select whether or not to display all trigrams/bigrams alphabetically
